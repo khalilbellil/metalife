@@ -19,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool[] inputs;
     private float yVelocity;
+    private bool didTeleport;
 
     private void OnValidate()
     {
@@ -62,6 +63,22 @@ public class PlayerMovement : MonoBehaviour
         jumpSpeed = Mathf.Sqrt(jumpHeight * -2f * gravityAcceleration);
     }
 
+    public void Enabled(bool value)
+    {
+        enabled = value;
+        controller.enabled = value;
+    }
+
+    public void Teleport(Vector3 toPosition)
+    {
+        bool isEnabled = controller.enabled;
+        controller.enabled = false;
+        transform.position = toPosition;
+        controller.enabled = isEnabled;
+
+        didTeleport = true;
+    }
+
     private void Move(Vector2 inputDirection, bool jump, bool sprint)
     {
         Vector3 moveDirection = Vector3.Normalize(camProxy.right * inputDirection.x + Vector3.Normalize(FlattenVector3(camProxy.forward)) * inputDirection.y);
@@ -98,10 +115,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void SendMovement()
     {
+        if (NetworkManager.Singleton.CurrentTick % 2 != 0)
+            return;
+
         Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientId.playerMovement);
         message.AddUShort(player.Id);
+        message.AddUShort(NetworkManager.Singleton.CurrentTick);
+        message.AddBool(didTeleport);
         message.AddVector3(transform.position);
         message.AddVector3(camProxy.forward);
         NetworkManager.Singleton.Server.SendToAll(message);
+
+        didTeleport = false;
     }
 }

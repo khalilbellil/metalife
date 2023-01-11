@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameLogic : MonoBehaviour
 {
@@ -27,8 +27,36 @@ public class GameLogic : MonoBehaviour
     [SerializeField] private GameObject localPlayerPrefab;
     [SerializeField] private GameObject playerPrefab;
 
+    private byte activeScene;
+
     private void Awake()
     {
         Singleton = this;
+    }
+
+    public void LoadScene(byte sceneBuildIndex)
+    {
+        StartCoroutine(LoadSceneInBackground(sceneBuildIndex));
+    }
+
+    public void UnloadActiveScene()
+    {
+        if (activeScene > 0)
+        {
+            SceneManager.UnloadSceneAsync(activeScene);
+            activeScene = 0;
+        }
+    }
+
+    private IEnumerator LoadSceneInBackground(byte sceneBuildIndex)
+    {
+        UnloadActiveScene();
+
+        activeScene = sceneBuildIndex;
+        AsyncOperation loadingScene = SceneManager.LoadSceneAsync(sceneBuildIndex, LoadSceneMode.Additive);
+        while (!loadingScene.isDone)
+            yield return new WaitForSeconds(0.25f);
+
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(sceneBuildIndex));
     }
 }

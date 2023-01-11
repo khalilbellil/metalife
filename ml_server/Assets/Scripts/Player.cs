@@ -3,6 +3,7 @@ using Riptide.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerMovement))]
 public class Player : MonoBehaviour
 {
     public static Dictionary<ushort, Player> list = new Dictionary<ushort, Player>();
@@ -13,6 +14,17 @@ public class Player : MonoBehaviour
     public PlayerMovement Movement => movement;
 
     [SerializeField] private PlayerMovement movement;
+
+    private void OnValidate()
+    {
+        if (movement == null)
+            movement = GetComponent<PlayerMovement>();
+    }
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void OnDestroy()
     {

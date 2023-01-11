@@ -10,23 +10,36 @@ public class Player : MonoBehaviour
     public ushort Id { get; private set; }
     public bool IsLocal { get; private set; }
 
+    [SerializeField] private PlayerAnimationManager animationManager;
     [SerializeField] private Transform camTransform;
+    [SerializeField] private Interpolator interpolator;
 
     private string username;
+
+    private void OnValidate()
+    {
+        if (animationManager == null)
+            animationManager = GetComponent<PlayerAnimationManager>();
+    }
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void OnDestroy()
     {
         list.Remove(Id);
     }
 
-    private void Move(Vector3 newPosition, Vector3 forward)
+    private void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 forward)
     {
-        transform.position = newPosition;
+        interpolator.NewUpdate(tick, isTeleport, newPosition);
 
         if (!IsLocal)
-        {
             camTransform.forward = forward;
-        }
+
+        animationManager.AnimateBasedOnSpeed();
     }
 
     public static void Spawn(ushort id, string username, Vector3 position)
@@ -51,6 +64,12 @@ public class Player : MonoBehaviour
     }
 
     #region Messages
+    [MessageHandler((ushort)ServerToClientId.activeScene)]
+    private static void ActiveScene(Message message)
+    {
+        GameLogic.Singleton.LoadScene(message.GetByte());
+    }
+
     [MessageHandler((ushort)ServerToClientId.playerSpawned)]
     private static void SpawnPlayer(Message message)
     {
@@ -61,7 +80,7 @@ public class Player : MonoBehaviour
     private static void PlayerMovement(Message message)
     {
         if (list.TryGetValue(message.GetUShort(), out Player player))
-            player.Move(message.GetVector3(), message.GetVector3());
+            player.Move(message.GetUShort(), message.GetBool(), message.GetVector3(), message.GetVector3());
     }
 
     #endregion

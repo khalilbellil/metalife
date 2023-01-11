@@ -35,13 +35,21 @@ public class UIManager : MonoBehaviour
         connectUI.SetActive(false);
 
         NetworkManager.Singleton.Connect();
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void BackToMain()
     {
         usernameField.interactable = true;
         connectUI.SetActive(true);
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
+
+    #region Messages
 
     public void SendName()
     {
@@ -50,4 +58,5 @@ public class UIManager : MonoBehaviour
         NetworkManager.Singleton.Client.Send(message);
     }
 
+    #endregion
 }

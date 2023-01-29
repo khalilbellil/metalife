@@ -113,6 +113,7 @@ GameObject:
   - component: {fileID: 6329896556187204687}
   - component: {fileID: 4559814115611967028}
   - component: {fileID: 1576206997818021978}
+  - component: {fileID: 7871744207112733545}
   m_Layer: 0
   m_Name: LocalPlayer
   m_TagString: Untagged
@@ -194,6 +195,24 @@ MonoBehaviour:
   timeElapsed: 0
   timeToReachTarget: 0.05
   movementThreshold: 0.05
+--- !u!143 &7871744207112733545
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673061599552897066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2
+  m_Radius: 0.3
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.08, z: 0}
 --- !u!1001 &6622704285458739574
 PrefabInstance:
   m_ObjectHideFlags: 0

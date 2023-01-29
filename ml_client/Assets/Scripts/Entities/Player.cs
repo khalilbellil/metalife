@@ -10,9 +10,9 @@ public class Player : MonoBehaviour
     public ushort Id { get; private set; }
     public bool IsLocal { get; private set; }
 
-    [SerializeField] private PlayerAnimationManager animationManager;
-    [SerializeField] private Transform camTransform;
+    [SerializeField] public PlayerController controller;
     [SerializeField] private Interpolator interpolator;
+    [SerializeField] private PlayerAnimationManager animationManager;
 
     private string username;
 
@@ -20,6 +20,10 @@ public class Player : MonoBehaviour
     {
         if (animationManager == null)
             animationManager = GetComponent<PlayerAnimationManager>();
+        if (controller == null)
+            controller = GetComponent<PlayerController>();
+        if (interpolator == null)
+            interpolator = GetComponent<Interpolator>();
     }
 
     private void Start()
@@ -37,7 +41,7 @@ public class Player : MonoBehaviour
         interpolator.NewUpdate(tick, isTeleport, newPosition);
 
         if (!IsLocal)
-            camTransform.forward = forward;
+            controller.camTransform.forward = forward;
 
         animationManager.AnimateBasedOnSpeed();
     }
@@ -49,6 +53,7 @@ public class Player : MonoBehaviour
         {
             player = Instantiate(GameLogic.Singleton.LocalPlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
             player.IsLocal = true;
+            NetworkManager.Singleton.localPlayer = player;
         }
         else
         {

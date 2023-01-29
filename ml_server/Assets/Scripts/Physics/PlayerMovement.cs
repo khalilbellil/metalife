@@ -1,25 +1,23 @@
 using Riptide;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private Player player;
-    [SerializeField] private CharacterController controller;
-    [SerializeField] private Transform camProxy;
-    [SerializeField] private float gravity;
-    [SerializeField] private float movementSpeed;
-    [SerializeField] private float jumpHeight;
+    [SerializeField] public CharacterController controller;
+    [SerializeField] public Transform camProxy;
+    [SerializeField] public float gravity;
+    [SerializeField] public float movementSpeed;
+    [SerializeField] public float jumpHeight;
 
-    private float gravityAcceleration;
-    private float moveSpeed;
-    private float jumpSpeed;
+    public float gravityAcceleration;
+    public float moveSpeed;
+    public float jumpSpeed;
 
-    private bool[] inputs;
-    private float yVelocity;
-    private bool didTeleport;
+    public bool[] inputs;
+    public float yVelocity;
+    public bool didTeleport;
 
     private void OnValidate()
     {
@@ -37,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
         inputs = new bool[6];
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         Vector2 inputDirection = Vector2.zero;
 
@@ -53,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
         if (inputs[3])
             inputDirection.x += 1;
 
-        Move(inputDirection, inputs[4], inputs[5]);
+        //Move(inputDirection, inputs[4], inputs[5]);
     }
 
     private void Initialize()
@@ -82,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
     private void Move(Vector2 inputDirection, bool jump, bool sprint)
     {
         Vector3 moveDirection = Vector3.Normalize(camProxy.right * inputDirection.x + Vector3.Normalize(FlattenVector3(camProxy.forward)) * inputDirection.y);
-        moveDirection *= moveSpeed;
+        moveDirection *= moveSpeed; // * minTimeBetweenTicks
 
         if (sprint)
             moveDirection *= 2f;

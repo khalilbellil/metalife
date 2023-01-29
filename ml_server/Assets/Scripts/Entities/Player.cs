@@ -11,6 +11,9 @@ public class Player : MonoBehaviour
     public ushort Id { get; private set; }
     public string Username { get; private set; }
 
+    public StatePayload[] stateBuffer;
+    public Queue<InputPayload> inputQueue;
+
     public PlayerMovement Movement => movement;
 
     [SerializeField] private PlayerMovement movement;
@@ -24,6 +27,8 @@ public class Player : MonoBehaviour
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
+        stateBuffer = new StatePayload[NetworkManager.Singleton.BUFFER_SIZE];
+        inputQueue = new Queue<InputPayload>();
     }
 
     private void OnDestroy()

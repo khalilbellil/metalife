@@ -5,9 +5,22 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Transform camTransform;
+    [SerializeField] public Transform camTransform;
+    [SerializeField] public CharacterController characterController;
 
-    private bool[] inputs;
+    public float gravityAcceleration;
+    public float moveSpeed;
+    public float jumpSpeed;
+
+    public bool[] inputs;
+    public float yVelocity;
+    public bool didTeleport;
+
+    private void OnValidate()
+    {
+        if (characterController == null)
+            characterController = GetComponent<CharacterController>();
+    }
 
     private void Start()
     {
@@ -44,7 +57,6 @@ public class PlayerController : MonoBehaviour
     }
 
     #region Messages
-
     private void SendInput()
     {
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerId.input);

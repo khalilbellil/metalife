@@ -4,8 +4,9 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    #region Singleton Pattern
     private static UIManager _singleton;
-    public static UIManager Singleton
+    public static UIManager Instance
     {
         get => _singleton;
         set
@@ -19,14 +20,34 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    [Header("Connect")]
     [SerializeField] private GameObject connectUI;
     [SerializeField] private InputField usernameField;
 
     private void Awake()
     {
-        Singleton = this;
+        Instance = this;
+    }
+
+    public void Initialize()
+    {
+
+    }
+
+    public void UpdateManager(float dt)
+    {
+
+    }
+
+    public void FixedUpdateManager(float dt)
+    {
+
+    }
+
+    public void StopManager()
+    {
+        _singleton = null;
     }
 
     public void ConnectClicked()
@@ -34,7 +55,7 @@ public class UIManager : MonoBehaviour
         usernameField.interactable = false;
         connectUI.SetActive(false);
 
-        NetworkManager.Singleton.Connect();
+        NetworkManager.Instance.Connect();
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -42,8 +63,10 @@ public class UIManager : MonoBehaviour
 
     public void BackToMain()
     {
-        usernameField.interactable = true;
-        connectUI.SetActive(true);
+        if(usernameField)
+            usernameField.interactable = true;
+        if(connectUI)
+            connectUI.SetActive(true);
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -55,7 +78,7 @@ public class UIManager : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerId.name);
         message.AddString(usernameField.text);
-        NetworkManager.Singleton.Client.Send(message);
+        NetworkManager.Instance.Client.Send(message);
     }
 
     #endregion

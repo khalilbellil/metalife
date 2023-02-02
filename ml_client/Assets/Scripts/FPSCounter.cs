@@ -26,9 +26,9 @@ public class FPSCounter : MonoBehaviour
 
         if (timeSinceUpdate >= updateFrequency)
         {
-            if (showMs && NetworkManager.Singleton.Client.IsConnected)
+            if (showMs && NetworkManager.Instance.Client.IsConnected)
                 fpsText.text = $"{framesSinceUpdate / timeSinceUpdate:0.0}fps\n" +
-                    $"{Mathf.Max(0f, NetworkManager.Singleton.Client.SmoothRTT):0}ms";
+                    $"{Mathf.Max(0f, NetworkManager.Instance.Client.SmoothRTT):0}ms";
             else
                 fpsText.text = $"{framesSinceUpdate / timeSinceUpdate:0.0}fps";
 

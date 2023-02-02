@@ -17,16 +17,16 @@ public class Interpolator : MonoBehaviour
     private void Start()
     {
         squareMovementThreshold = movementThreshold * movementThreshold;
-        to = new TransformUpdate(NetworkManager.Singleton.ServerTick, false, transform.position);
-        from = new TransformUpdate(NetworkManager.Singleton.InterpolationTick, false, transform.position);
-        previous = new TransformUpdate(NetworkManager.Singleton.InterpolationTick, false, transform.position);
+        to = new TransformUpdate(NetworkManager.Instance.ServerTick, false, transform.position);
+        from = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, transform.position);
+        previous = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, transform.position);
     }
 
     private void Update()
     {
         for (int i = 0; i < futureTransformUpdates.Count; i++)
         {
-            if (NetworkManager.Singleton.ServerTick >= futureTransformUpdates[i].Tick)
+            if (NetworkManager.Instance.ServerTick >= futureTransformUpdates[i].Tick)
             {
                 if (futureTransformUpdates[i].IsTeleport)
                 {
@@ -39,7 +39,7 @@ public class Interpolator : MonoBehaviour
                 {
                     previous = to;
                     to = futureTransformUpdates[i];
-                    from = new TransformUpdate(NetworkManager.Singleton.InterpolationTick, false, transform.position);
+                    from = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, transform.position);
                 }
 
                 futureTransformUpdates.RemoveAt(i);
@@ -69,7 +69,7 @@ public class Interpolator : MonoBehaviour
 
     public void NewUpdate(ushort tick, bool isTeleport, Vector3 position)
     {
-        if (tick <= NetworkManager.Singleton.InterpolationTick && !isTeleport)
+        if (tick <= NetworkManager.Instance.InterpolationTick && !isTeleport)
             return;
 
         for (int i = 0; i < futureTransformUpdates.Count; i++)

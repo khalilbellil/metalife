@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameLogic : MonoBehaviour
+public class GameLogic : MonoBehaviour //Deprecated
 {
     private static GameLogic _singleton;
     public static GameLogic Singleton

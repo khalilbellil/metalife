@@ -16,22 +16,22 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (InputManager.Instance.inputPressed.forward)
             inputs[0] = true;
 
-        if (Input.GetKey(KeyCode.S))
+        if (InputManager.Instance.inputPressed.backward)
             inputs[1] = true;
 
-        if (Input.GetKey(KeyCode.A))
+        if (InputManager.Instance.inputPressed.left)
             inputs[2] = true;
 
-        if (Input.GetKey(KeyCode.D))
+        if (InputManager.Instance.inputPressed.right)
             inputs[3] = true;
 
-        if (Input.GetKey(KeyCode.Space))
+        if (InputManager.Instance.inputPressed.jump)
             inputs[4] = true;
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (InputManager.Instance.inputPressed.sprint)
             inputs[5] = true;
     }
 
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerId.input);
         message.AddBools(inputs, false);
         message.AddVector3(camTransform.forward);
-        NetworkManager.Singleton.Client.Send(message);
+        NetworkManager.Instance.Client.Send(message);
     }
     #endregion
 }

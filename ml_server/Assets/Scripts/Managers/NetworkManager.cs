@@ -18,6 +18,7 @@ public enum ClientToServerId : ushort
 
 public class NetworkManager : MonoBehaviour
 {
+    #region Singleton
     private static NetworkManager _singleton;
     public static NetworkManager Singleton
     {
@@ -33,6 +34,7 @@ public class NetworkManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
     public Server Server { get; private set; }
     public ushort CurrentTick { get; private set; } = 0;

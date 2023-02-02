@@ -45,14 +45,15 @@ public class Player : MonoBehaviour
     public static void Spawn(ushort id, string username, Vector3 position)
     {
         Player player;
-        if (id == NetworkManager.Singleton.Client.Id)
+        if (id == NetworkManager.Instance.Client.Id)
         {
-            player = Instantiate(GameLogic.Singleton.LocalPlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
+            
+            player = Instantiate(PrefabManager.Instance.LocalPlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
             player.IsLocal = true;
         }
         else
         {
-            player = Instantiate(GameLogic.Singleton.PlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
+            player = Instantiate(PrefabManager.Instance.PlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
             player.IsLocal = false;
         }
 

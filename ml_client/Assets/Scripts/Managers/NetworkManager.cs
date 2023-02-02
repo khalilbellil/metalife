@@ -20,7 +20,7 @@ public enum ClientToServerId : ushort
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager _singleton;
-    public static NetworkManager Singleton
+    public static NetworkManager Instance
     {
         get => _singleton;
         set
@@ -41,7 +41,7 @@ public class NetworkManager : MonoBehaviour
     public ushort ServerTick
     {
         get => _serverTick;
-        private set
+        set
         {
             _serverTick = value;
             InterpolationTick = (ushort)(value - TicksBetweenPositionUpdates);
@@ -59,17 +59,17 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    [SerializeField] private string ip;
-    [SerializeField] private ushort port;
-    [Space(10)]
+    [SerializeField] private string ip = "127.0.0.1";
+    [SerializeField] private ushort port = 7777;
     [SerializeField] private ushort tickDivergenceTolerance = 1;
 
     private void Awake()
     {
-        Singleton = this;
+        Instance = this;
+        DontDestroyOnLoad(Instance);
     }
 
-    private void Start()
+    public void Initialize()
     {
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
@@ -82,15 +82,10 @@ public class NetworkManager : MonoBehaviour
         ServerTick = TicksBetweenPositionUpdates;
     }
 
-    private void FixedUpdate()
-    {
-        Client.Update();
-        ServerTick++;
-    }
-
-    private void OnApplicationQuit()
+    public void StopManager()
     {
         Client.Disconnect();
+        _singleton = null;
     }
 
     public void Connect()
@@ -100,12 +95,13 @@ public class NetworkManager : MonoBehaviour
 
     private void DidConnect(object sender, EventArgs e)
     {
-        UIManager.Singleton.SendName();
+        UIManager.Instance.SendName();
+        MainEntry.Instance.GoToNextFlow(SceneState.Game);
     }
 
     private void FailedToConnect(object sender, EventArgs e)
     {
-        UIManager.Singleton.BackToMain();
+        UIManager.Instance.BackToMain();
     }
 
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
@@ -116,11 +112,11 @@ public class NetworkManager : MonoBehaviour
 
     private void DidDisconnect(object sender, EventArgs e)
     {
-        UIManager.Singleton.BackToMain();
+        UIManager.Instance.BackToMain();
         foreach (Player player in Player.list.Values)
             Destroy(player.gameObject);
 
-        GameLogic.Singleton.UnloadActiveScene();
+        MainEntry.Instance.GoToNextFlow(SceneState.Menu);
     }
 
     private void SetTick(ushort serverTick)
@@ -135,6 +131,6 @@ public class NetworkManager : MonoBehaviour
     [MessageHandler((ushort)ServerToClientId.sync)]
     public static void Sync(Message message)
     {
-        Singleton.SetTick(message.GetUShort());
+        Instance.SetTick(message.GetUShort());
     }
 }

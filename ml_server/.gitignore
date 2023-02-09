@@ -10,13 +10,6 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
-#Big Assets (will be saved on a Cloud)
-[Aa]ssets/[Mm]aterials/
-[Aa]ssets/[Mm]odels/
-[Aa]ssets/[Tt]extures/
-[Aa]ssets/[Vv][Ff][Xx]/
-[Aa]ssets/AE_New_York/
-
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 

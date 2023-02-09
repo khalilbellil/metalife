@@ -8,6 +8,7 @@ public enum SceneState { Game, Menu }
 
 public class MainEntry : MonoBehaviour
 {
+    #region Singleton Pattern
     private static MainEntry _singleton;
     public static MainEntry Instance
     {
@@ -23,6 +24,7 @@ public class MainEntry : MonoBehaviour
             }
         }
     }
+    #endregion
 
     protected bool flowInitialized = false;
     SceneState currentState;

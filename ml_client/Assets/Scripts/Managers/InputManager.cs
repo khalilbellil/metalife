@@ -47,7 +47,10 @@ public class InputManager
     {
         _toFill.deltaMouse.x = Input.GetAxis("Mouse X");
         _toFill.deltaMouse.y = Input.GetAxis("Mouse Y");
-        _toFill.mousePosToRay = _toFill.MousePosToRay(Input.mousePosition);
+        if (Camera.main)
+            _toFill.mousePosToRay = MousePosToRay(Input.mousePosition);
+        else
+            Debug.LogWarning("You need to tag a Main Camera !");
         //if (PlayerManager.Instance.player)
         //    _toFill.aimingDirection = (Camera.main.ScreenToWorldPoint(Input.mousePosition) - PlayerManager.Instance.player.transform.position).normalized;
         _toFill.leftMouseButtonPressed = Input.GetMouseButtonDown(0);
@@ -68,6 +71,11 @@ public class InputManager
         _toFill.switchWeapon = Input.GetKey(KeyCode.Alpha1);
 
         _toFill.anyKey = Input.anyKeyDown;
+    }
+    public Ray MousePosToRay(Vector3 _mousePos)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(_mousePos);
+        return ray;
     }
 
     public class InputPkg
@@ -94,12 +102,6 @@ public class InputManager
         public override string ToString()
         {
             return string.Format("DeltaMouse[{0}],JumpPressed[{1}],InventoryPressed[{2}],InteractPressed[{3}], SwitchWeaponPressed[{4}] ", deltaMouse, jump, inventory, interact, switchWeapon);
-        }
-
-        public Ray MousePosToRay(Vector3 _mousePos)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(_mousePos);
-            return ray;
         }
     }
 }

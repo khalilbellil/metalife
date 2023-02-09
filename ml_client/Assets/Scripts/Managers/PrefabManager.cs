@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PrefabManager : MonoBehaviour
 {
+    #region Singleton Pattern
     private static PrefabManager _singleton;
     public static PrefabManager Instance
     {
@@ -19,6 +20,7 @@ public class PrefabManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
     private void Awake()
     {
@@ -38,6 +40,11 @@ public class PrefabManager : MonoBehaviour
 
         if (LocalPlayerPath != null && LocalPlayerPath != "")
             LocalPlayerPrefab = Resources.Load(LocalPlayerPath) as GameObject;
+    }
+
+    public GameObject Spawn(Vector3 position, Quaternion rotation)
+    {
+        return Instantiate(LocalPlayerPrefab, position, rotation);
     }
 
     public void StopManager()

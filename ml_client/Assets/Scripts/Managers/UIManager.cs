@@ -1,4 +1,5 @@
 using Riptide;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,10 +25,12 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private GameObject connectUI;
     [SerializeField] private InputField usernameField;
+    [SerializeField] public TMP_Text centerText;
 
     private void Awake()
     {
         Instance = this;
+        DontDestroyOnLoad(Instance);
     }
 
     public void Initialize()

@@ -19,6 +19,7 @@ public enum ClientToServerId : ushort
 
 public class NetworkManager : MonoBehaviour
 {
+    #region Singleton Pattern
     private static NetworkManager _singleton;
     public static NetworkManager Instance
     {
@@ -34,6 +35,7 @@ public class NetworkManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
     public Client Client { get; private set; }
 

@@ -66,9 +66,9 @@ public class InputManager
         _toFill.jump = Input.GetKey(KeyCode.Space);
         _toFill.sprint = Input.GetKey(KeyCode.LeftShift);
 
-        _toFill.inventory = Input.GetKey(KeyCode.I);
-        _toFill.interact = Input.GetKey(KeyCode.F);
-        _toFill.switchWeapon = Input.GetKey(KeyCode.Alpha1);
+        _toFill.inventory = Input.GetKeyDown(KeyCode.I);
+        _toFill.interact = Input.GetKeyDown(KeyCode.F);
+        _toFill.switchWeapon = Input.GetKeyDown(KeyCode.Alpha1);
 
         _toFill.anyKey = Input.anyKeyDown;
     }

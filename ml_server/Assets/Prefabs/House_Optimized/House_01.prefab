@@ -708,7 +708,7 @@ GameObject:
   - component: {fileID: 4381592492682111152}
   - component: {fileID: 2627870825508758924}
   - component: {fileID: 2627870825508758925}
-  - component: {fileID: 2627870825508758923}
+  - component: {fileID: 773610093}
   m_Layer: 0
   m_Name: Inner_Door_01_LOD0.002
   m_TagString: Untagged
@@ -809,7 +809,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.6873255, y: 2.1954236, z: 1.8694334}
   m_Center: {x: -0.11027098, y: 1.0977118, z: 0.5291114}
---- !u!114 &2627870825508758923
+--- !u!114 &773610093
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -818,12 +818,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3901072386087314843}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
+  m_Script: {fileID: 11500000, guid: 918cf8ca2b060b04daad028eeb9a670a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 3
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &4339354642346419906
 GameObject:
   m_ObjectHideFlags: 0
@@ -837,7 +837,7 @@ GameObject:
   - component: {fileID: 9156204585032928617}
   - component: {fileID: 2627870824488199197}
   - component: {fileID: 2627870824488199198}
-  - component: {fileID: 2627870824488199196}
+  - component: {fileID: 1503507129}
   m_Layer: 0
   m_Name: House_01_Door_01_LOD0.001
   m_TagString: Untagged
@@ -939,7 +939,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.1277161, y: 2.2166214, z: 0.24873379}
   m_Center: {x: 0.55731666, y: 1.1083107, z: 0.027638178}
---- !u!114 &2627870824488199196
+--- !u!114 &1503507129
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -948,12 +948,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4339354642346419906}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
+  m_Script: {fileID: 11500000, guid: 918cf8ca2b060b04daad028eeb9a670a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 1
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &5355786552137435622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1062,7 +1062,7 @@ GameObject:
   - component: {fileID: 371400677709781649}
   - component: {fileID: 2627870824787729158}
   - component: {fileID: 2627870824787729159}
-  - component: {fileID: 2627870824787729160}
+  - component: {fileID: 1006300567}
   m_Layer: 0
   m_Name: Inner_Door_01_LOD0.001
   m_TagString: Untagged
@@ -1163,7 +1163,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.2388372, y: 1.9939917, z: 2.242175}
   m_Center: {x: 0.14122152, y: 0.99699587, z: 0.5361533}
---- !u!114 &2627870824787729160
+--- !u!114 &1006300567
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1172,12 +1172,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7068273567954870752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
+  m_Script: {fileID: 11500000, guid: 918cf8ca2b060b04daad028eeb9a670a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 2
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &8081778552724006499
 GameObject:
   m_ObjectHideFlags: 0

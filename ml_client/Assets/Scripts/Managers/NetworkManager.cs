@@ -8,17 +8,19 @@ public enum ServerToClientId : ushort
     sync = 1,
     playerSpawned,
     playerMovement,
-    activeScene,
+    doorOpened
 }
 
 public enum ClientToServerId : ushort
 {
-    name = 1,
+    loginInfo = 1,
     input,
+    doorOpened
 }
 
 public class NetworkManager : MonoBehaviour
 {
+    #region Singleton Pattern
     private static NetworkManager _singleton;
     public static NetworkManager Instance
     {
@@ -34,6 +36,7 @@ public class NetworkManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
     public Client Client { get; private set; }
 
@@ -59,8 +62,8 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    [SerializeField] private string ip = "127.0.0.1";
-    [SerializeField] private ushort port = 7777;
+    [SerializeField] private string default_ip = "127.0.0.1";
+    [SerializeField] private ushort default_port = 7777;
     [SerializeField] private ushort tickDivergenceTolerance = 1;
 
     private void Awake()
@@ -88,15 +91,20 @@ public class NetworkManager : MonoBehaviour
         _singleton = null;
     }
 
-    public void Connect()
+    public void Connect(string ip, string port)
     {
+        if (string.IsNullOrEmpty(ip))
+            ip = default_ip;
+        if (string.IsNullOrEmpty(port))
+            ip = default_port.ToString();
+
         Client.Connect($"{ip}:{port}");
     }
 
     private void DidConnect(object sender, EventArgs e)
     {
-        UIManager.Instance.SendName();
         MainEntry.Instance.GoToNextFlow(SceneState.Game);
+        //UIManager.Instance.SendName();
     }
 
     private void FailedToConnect(object sender, EventArgs e)
@@ -106,14 +114,14 @@ public class NetworkManager : MonoBehaviour
 
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
     {
-        if(Player.list.TryGetValue(e.Id, out Player player))
+        if(PlayerManager.Instance.list.TryGetValue(e.Id, out Player player))
             Destroy(player.gameObject);
     }
 
     private void DidDisconnect(object sender, EventArgs e)
     {
         UIManager.Instance.BackToMain();
-        foreach (Player player in Player.list.Values)
+        foreach (Player player in PlayerManager.Instance.list.Values)
             Destroy(player.gameObject);
 
         MainEntry.Instance.GoToNextFlow(SceneState.Menu);

@@ -1,4 +1,5 @@
 using Riptide;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,10 +25,13 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private GameObject connectUI;
     [SerializeField] private InputField usernameField;
+    [SerializeField] private InputField IpAddressField;
+    [SerializeField] public TMP_Text centerText;
 
     private void Awake()
     {
         Instance = this;
+        DontDestroyOnLoad(Instance);
     }
 
     public void Initialize()
@@ -55,7 +59,7 @@ public class UIManager : MonoBehaviour
         usernameField.interactable = false;
         connectUI.SetActive(false);
 
-        NetworkManager.Instance.Connect();
+        NetworkManager.Instance.Connect(IpAddressField.text, "7777");
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -73,13 +77,11 @@ public class UIManager : MonoBehaviour
     }
 
     #region Messages
-
-    public void SendName()
+    public void SendLoginInfo()
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerId.name);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerId.loginInfo);
         message.AddString(usernameField.text);
         NetworkManager.Instance.Client.Send(message);
     }
-
     #endregion
 }

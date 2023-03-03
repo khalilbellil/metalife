@@ -1,6 +1,3 @@
-using Riptide;
-using Riptide.Utils;
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +5,7 @@ public enum SceneState { Game, Menu }
 
 public class MainEntry : MonoBehaviour
 {
+    #region Singleton Pattern
     private static MainEntry _singleton;
     public static MainEntry Instance
     {
@@ -23,6 +21,7 @@ public class MainEntry : MonoBehaviour
             }
         }
     }
+    #endregion
 
     protected bool flowInitialized = false;
     SceneState currentState;
@@ -63,7 +62,6 @@ public class MainEntry : MonoBehaviour
                 return; //This means Initialize hasnt been called yet, can happen in weird Awake/Update way (should not though, but be safe)
             curFlow.Update(Time.deltaTime);
         }
-
     }
 
     private void FixedUpdate()
@@ -79,7 +77,6 @@ public class MainEntry : MonoBehaviour
     private void OnApplicationQuit()
     {
         NetworkManager.Instance.StopManager();
-        PrefabManager.Instance.StopManager();
         _singleton = null;
     }
 

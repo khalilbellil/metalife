@@ -7,13 +7,14 @@ public enum ServerToClientId : ushort
     sync = 1,
     playerSpawned,
     playerMovement,
-    activeScene,
+    doorOpened
 }
 
 public enum ClientToServerId : ushort
 {
-    name = 1,
+    loginInfo = 1,
     input,
+    doorOpened
 }
 
 public class NetworkManager : MonoBehaviour
@@ -88,7 +89,7 @@ public class NetworkManager : MonoBehaviour
 
     private void PlayerLeft(object sender, ServerDisconnectedEventArgs e)
     {
-        if (Player.list.TryGetValue(e.Client.Id, out Player player))
+        if (PlayerManager.Instance.list.TryGetValue(e.Client.Id, out Player player))
             Destroy(player.gameObject);
     }
 

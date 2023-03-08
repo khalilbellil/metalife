@@ -68,5 +68,27 @@ public class PlayerManager
     {
         Instance.Spawn(message.GetUShort(), message.GetString(), message.GetVector3());
     }
+
+    [MessageHandler((ushort)ServerToClientId.playerMovement)]
+    private static void PlayerMovement(Message message)
+    {
+        ushort playerId = message.GetUShort();
+        if (PlayerManager.Instance.list.TryGetValue(playerId, out Player player))
+        {
+            StatePayload serverState = new StatePayload();
+            serverState.tick = message.GetUShort();
+            serverState.position = message.GetVector3();
+            Vector3 forward = message.GetVector3();
+            if (playerId == NetworkManager.Instance.Client.Id)
+            {
+                player.playerController.latestServerState = serverState;
+            }
+            else
+            {
+                player.Move(serverState.tick, false, serverState.position, forward);
+            }
+            
+        }
+    }
     #endregion
 }

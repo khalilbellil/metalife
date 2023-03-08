@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DoorController : MonoBehaviour
+public class Door : MonoBehaviour
 {
     public ushort id = 0;
     bool trig;
@@ -14,7 +14,7 @@ public class DoorController : MonoBehaviour
     {
         if(id != 0)
         {
-            DoorManager.Instance.list.Add(id, this);
+            DoorManager.list.Add(id, this);
         }
         defaulRot = transform.eulerAngles;
         openRot = new Vector3(defaulRot.x, defaulRot.y + DoorOpenAngle, defaulRot.z);

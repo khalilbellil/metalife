@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerAnimationManager animationManager;
     [SerializeField] private Transform camTransform;
     [SerializeField] private Interpolator interpolator;
+    [SerializeField] public PlayerController playerController;
 
     private string username;
 
@@ -18,6 +19,9 @@ public class Player : MonoBehaviour
     {
         if (animationManager == null)
             animationManager = GetComponent<PlayerAnimationManager>();
+
+        if (playerController == null)
+            playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
@@ -30,7 +34,7 @@ public class Player : MonoBehaviour
         PlayerManager.Instance.list.Remove(Id);
     }
 
-    private void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 forward)
+    public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 forward)
     {
         interpolator.NewUpdate(tick, isTeleport, newPosition);
 
@@ -58,11 +62,5 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Messages
-    [MessageHandler((ushort)ServerToClientId.playerMovement)]
-    private static void PlayerMovement(Message message)
-    {
-        if (PlayerManager.Instance.list.TryGetValue(message.GetUShort(), out Player player))
-            player.Move(message.GetUShort(), message.GetBool(), message.GetVector3(), message.GetVector3());
-    }
     #endregion
 }

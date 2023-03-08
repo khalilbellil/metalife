@@ -40,13 +40,4 @@ public class Player : MonoBehaviour
         Username = value;
     }
     #endregion
-
-    #region Messages
-    [MessageHandler((ushort)ClientToServerId.input)]
-    private static void Input(ushort fromClientId, Message message)
-    {
-        if (PlayerManager.Instance.list.TryGetValue(fromClientId, out Player player))
-            player.Movement.SetInput(message.GetBools(6), message.GetVector3());
-    }
-    #endregion
 }

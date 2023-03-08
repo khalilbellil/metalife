@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5685197425143671161}
   - component: {fileID: 4670874078494245270}
   - component: {fileID: 4670874078494245268}
-  - component: {fileID: 4670874078494245269}
+  - component: {fileID: 9054561620071996060}
   m_Layer: 0
   m_Name: Inner_Door_03_LOD0.004
   m_TagString: Untagged
@@ -31,6 +31,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0.70710677, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 2.0978699, y: 4.023582, z: -6.4716644}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 493563406001868299}
   - {fileID: 5290360072792496853}
@@ -56,6 +57,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -113,7 +115,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.9187366, y: 1.9617838, z: 3.1449509}
   m_Center: {x: 0.46955284, y: 0.9808919, z: 0.047472063}
---- !u!114 &4670874078494245269
+--- !u!114 &9054561620071996060
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,12 +124,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 499674480652669976}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ebcf928a5083f43bed2e817b97c1e9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &655265903835276965
 GameObject:
   m_ObjectHideFlags: 0
@@ -156,6 +159,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -2.2737367e-15, z: -0, w: 1}
   m_LocalPosition: {x: -0.00000009170079, y: 0, z: 0.000000042874742}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8588054069983943184}
   m_RootOrder: 1
@@ -179,6 +183,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -237,6 +242,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.000000076293944, y: 0.000000076293944, z: -0.00000015258789}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5648052979346272732}
   m_RootOrder: 0
@@ -260,6 +266,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -319,6 +326,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -2.2737367e-15, z: -0, w: 1}
   m_LocalPosition: {x: -0.00000009170079, y: 0.00000030517577, z: -0.000000022290369}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7375276467609837308}
   m_RootOrder: 1
@@ -342,6 +350,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -385,7 +394,7 @@ GameObject:
   - component: {fileID: 7438857106537491704}
   - component: {fileID: 4670874078498049774}
   - component: {fileID: 4670874078498049773}
-  - component: {fileID: 4670874078498049775}
+  - component: {fileID: 349569552637155641}
   m_Layer: 0
   m_Name: Inner_Door_03_LOD0.003
   m_TagString: Untagged
@@ -403,6 +412,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0.70710677, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 2.0978699, y: 1.023582, z: -4.4716644}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7750419764782475582}
   - {fileID: 4669978736378497759}
@@ -428,6 +438,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -485,7 +496,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.8704195, y: 1.9617838, z: 2.738121}
   m_Center: {x: 0.53686845, y: 0.9808919, z: 0.11101084}
---- !u!114 &4670874078498049775
+--- !u!114 &349569552637155641
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -494,12 +505,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3683597333152895136}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ebcf928a5083f43bed2e817b97c1e9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &4301828279792173222
 GameObject:
   m_ObjectHideFlags: 0
@@ -528,6 +540,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -2.2737367e-15, z: -0, w: 1}
   m_LocalPosition: {x: -0.00000009170079, y: 0, z: 0.000000042874742}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8588054069983943184}
   m_RootOrder: 0
@@ -551,6 +564,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -610,6 +624,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5141138557387152036}
   m_RootOrder: 1
@@ -633,6 +648,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -688,7 +704,7 @@ GameObject:
   - component: {fileID: 5899107004624088691}
   - component: {fileID: 4670874078684399330}
   - component: {fileID: 4670874078684399329}
-  - component: {fileID: 4670874078684399331}
+  - component: {fileID: 5370979888224102073}
   m_Layer: 0
   m_Name: Porch_05_Door_LOD0.001
   m_TagString: Untagged
@@ -706,6 +722,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -1.03479, y: 1.0395532, z: -2.2092628}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4080684111499504356}
   - {fileID: 4760663880811555230}
@@ -731,6 +748,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -788,7 +806,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.8186378, y: 2.2029877, z: 2.5157232}
   m_Center: {x: 0.5663502, y: 1.1014938, z: 0.08876586}
---- !u!114 &4670874078684399331
+--- !u!114 &5370979888224102073
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -797,12 +815,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 4931539858744181120}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ebcf928a5083f43bed2e817b97c1e9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &5481776762395312158
 GameObject:
   m_ObjectHideFlags: 0
@@ -830,6 +849,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6275557787192917328}
   - {fileID: 7252719840859016173}
@@ -905,6 +925,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.000000076293944, y: 0.000000076293944, z: -0.00000015258789}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5648052979346272732}
   m_RootOrder: 1
@@ -928,6 +949,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -987,6 +1009,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5141138557387152036}
   m_RootOrder: 3
@@ -1010,6 +1033,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1080,6 +1104,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5141138557387152036}
   m_RootOrder: 2
@@ -1103,6 +1128,7 @@ MeshRenderer:
   m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1174,6 +1200,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5141138557387152036}
   m_RootOrder: 0
@@ -1197,6 +1224,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1269,6 +1297,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -2.2737367e-15, z: -0, w: 1}
   m_LocalPosition: {x: -0.00000009170079, y: 0.00000030517577, z: -0.000000022290369}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7375276467609837308}
   m_RootOrder: 0
@@ -1292,6 +1321,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1

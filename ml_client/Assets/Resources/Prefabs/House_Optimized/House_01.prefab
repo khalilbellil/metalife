@@ -821,7 +821,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 3
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
 --- !u!1 &4339354642346419906
@@ -951,7 +952,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 1
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
 --- !u!1 &5355786552137435622
@@ -1175,7 +1177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 2
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
 --- !u!1 &8081778552724006499

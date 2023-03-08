@@ -7,7 +7,8 @@ public enum ServerToClientId : ushort
     sync = 1,
     playerSpawned,
     playerMovement,
-    doorOpened
+    doorOpened,
+    initData
 }
 
 public enum ClientToServerId : ushort
@@ -42,6 +43,12 @@ public class NetworkManager : MonoBehaviour
 
     [SerializeField] private ushort port;
     [SerializeField] private ushort maxClientCount;
+
+    [SerializeField] public Transform SpawnPoint;
+    [SerializeField] public float gravity = -9.81f;
+    [SerializeField] public ushort gravityMultiplier = 2;
+    [SerializeField] public ushort movementSpeed = 5;
+    [SerializeField] public ushort jumpHeight = 1;
 
     private void Awake()
     {
@@ -84,7 +91,13 @@ public class NetworkManager : MonoBehaviour
 
     private void NewPlayerConnected(object sender, ServerConnectedEventArgs e)
     {
-
+        Message message = Message.Create(MessageSendMode.Reliable, (ushort)ServerToClientId.initData);
+        message.AddFloat(gravity);
+        message.AddUShort(gravityMultiplier);
+        message.AddUShort(movementSpeed);
+        message.AddUShort(jumpHeight);
+        Server.Send(message, e.Client.Id);
+        Debug.Log("InitData Sent");
     }
 
     private void PlayerLeft(object sender, ServerDisconnectedEventArgs e)

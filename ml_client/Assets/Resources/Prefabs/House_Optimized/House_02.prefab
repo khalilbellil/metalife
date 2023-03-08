@@ -127,9 +127,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &8491510037340105358
 GameObject:
   m_ObjectHideFlags: 0
@@ -1025,9 +1026,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}
 --- !u!1 &8491510038705415285
 GameObject:
   m_ObjectHideFlags: 0
@@ -1596,6 +1598,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe253e11b1989f418981074f9997af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  open: 0
   smooth: 2
   DoorOpenAngle: 90
-  txt: {fileID: 0}

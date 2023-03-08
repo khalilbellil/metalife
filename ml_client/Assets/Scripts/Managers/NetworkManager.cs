@@ -8,7 +8,8 @@ public enum ServerToClientId : ushort
     sync = 1,
     playerSpawned,
     playerMovement,
-    doorOpened
+    doorOpened,
+    initData
 }
 
 public enum ClientToServerId : ushort
@@ -65,6 +66,11 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private string default_ip = "127.0.0.1";
     [SerializeField] private ushort default_port = 7777;
     [SerializeField] private ushort tickDivergenceTolerance = 1;
+
+    [NonSerialized] public float gravity;
+    [NonSerialized] public ushort gravityMultiplier;
+    [NonSerialized] public ushort movementSpeed;
+    [NonSerialized] public ushort jumpHeight;
 
     private void Awake()
     {
@@ -140,5 +146,14 @@ public class NetworkManager : MonoBehaviour
     public static void Sync(Message message)
     {
         Instance.SetTick(message.GetUShort());
+    }
+
+    [MessageHandler((ushort)ServerToClientId.initData)]
+    public static void InitData(Message message)
+    {
+        _singleton.gravity = message.GetFloat();
+        _singleton.gravityMultiplier = message.GetUShort();
+        _singleton.movementSpeed = message.GetUShort();
+        _singleton.jumpHeight = message.GetUShort();
     }
 }

@@ -45,7 +45,7 @@ public class PlayerManager
         foreach (Player otherPlayer in list.Values)
             SendSpawned(id, otherPlayer);
 
-        Player player = GameObject.Instantiate(GameLogic.Singleton.PlayerPrefab, new Vector3(19f, 2f, -3f), Quaternion.identity).GetComponent<Player>();
+        Player player = GameObject.Instantiate(GameLogic.Singleton.PlayerPrefab, NetworkManager.Singleton.SpawnPoint.position, Quaternion.identity).GetComponent<Player>();
         player.name = $"Player {id} ({(string.IsNullOrEmpty(username) ? "Guest" : username)})";
         player.SetId(id);
         player.SetUsername(string.IsNullOrEmpty(username) ? $"Guest {id}" : username);
@@ -56,12 +56,14 @@ public class PlayerManager
 
     private void SendSpawned(Player player)
     {
-        NetworkManager.Singleton.Server.SendToAll(AddSpawnData(Message.Create(MessageSendMode.Reliable, ServerToClientId.playerSpawned), player));
+        NetworkManager.Singleton.Server.SendToAll(AddSpawnData(Message.Create(MessageSendMode.Reliable, 
+            ServerToClientId.playerSpawned), player));
     }
 
     private void SendSpawned(ushort toClientId, Player player)
     {
-        NetworkManager.Singleton.Server.Send(AddSpawnData(Message.Create(MessageSendMode.Reliable, ServerToClientId.playerSpawned), player), toClientId);
+        NetworkManager.Singleton.Server.Send(AddSpawnData(Message.Create(MessageSendMode.Reliable, 
+            ServerToClientId.playerSpawned), player), toClientId);
     }
 
     private Message AddSpawnData(Message message, Player player)

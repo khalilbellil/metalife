@@ -1,31 +1,35 @@
 using Riptide;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
-public class DoorManager
+public class DoorManager : MonoBehaviour
 {
     #region Singleton Pattern
-    private static DoorManager instance = null;
-    private DoorManager() { }
+    private static DoorManager _singleton;
     public static DoorManager Instance
     {
-        get
+        get => _singleton;
+        set
         {
-            if (instance == null)
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != value)
             {
-                instance = new DoorManager();
+                Debug.Log($"{nameof(DoorManager)} instance already exists, destroying duplicate !");
+                Destroy(value);
             }
-            return instance;
         }
     }
     #endregion
 
-    public Dictionary<ushort, Door> list = new Dictionary<ushort, Door>();
+    public static Dictionary<ushort, Door> list = new Dictionary<ushort, Door>();
 
     [MessageHandler((ushort)ServerToClientId.doorOpened)]
     private static void DoorOpened(Message message)
     {
         ushort _id = message.GetUShort();
-        if (Instance.list.TryGetValue(_id, out Door door))
+        if (list.TryGetValue(_id, out Door door))
             door.open = !door.open;
     }
 }

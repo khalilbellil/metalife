@@ -18,7 +18,7 @@ public class Door : MonoBehaviour
     {
         if (id != 0)
         {
-            DoorManager.Instance.list.Add(id, this);
+            DoorManager.list.Add(id, this);
         }
         defaulRot = transform.eulerAngles;
         openRot = new Vector3(defaulRot.x, defaulRot.y + DoorOpenAngle, defaulRot.z);

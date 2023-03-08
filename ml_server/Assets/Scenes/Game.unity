@@ -13840,7 +13840,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5ff9a39b25f1e4da63ecf9dd0998df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idToApply: 1
 --- !u!1001 &582936353
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46224,7 +46223,7 @@ MonoBehaviour:
   maxClientCount: 10
   SpawnPoint: {fileID: 1721428733}
   gravity: -9.81
-  gravityMultiplier: 1
+  gravityMultiplier: 2
   movementSpeed: 5
   jumpHeight: 1
 --- !u!4 &1995159481

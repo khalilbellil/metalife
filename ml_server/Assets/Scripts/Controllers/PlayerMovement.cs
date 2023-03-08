@@ -9,6 +9,7 @@ public struct InputPayload
     public ushort tick;
     public Vector2 inputDirection;
     public Vector3 camForward;
+    public float yRotation;
     public bool jump;
     public bool sprint;
 }
@@ -30,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
     private float jumpSpeed;
 
     private bool[] inputs;
-    private float yVelocity;
+    private float yVelocity, zVelocity;
     private bool didTeleport;
 
     private const int BUFFER_SIZE = 1024;
@@ -58,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
     private void Initialize()
     {
         gravityAcceleration = NetworkManager.Singleton.gravity * Time.fixedDeltaTime 
-            * Time.fixedDeltaTime;
+            * Time.fixedDeltaTime * NetworkManager.Singleton.gravityMultiplier;
         moveSpeed = Convert.ToSingle(NetworkManager.Singleton.movementSpeed) * Time.fixedDeltaTime;
         jumpSpeed = Mathf.Sqrt(Convert.ToSingle(NetworkManager.Singleton.jumpHeight) * -2f 
             * gravityAcceleration);
@@ -86,21 +87,28 @@ public class PlayerMovement : MonoBehaviour
     {
         // Should always be in sync with same function on Client
         camProxy.rotation = Quaternion.LookRotation(input.camForward);
+        transform.localEulerAngles = new Vector3(0, input.yRotation, 0);
         Vector3 moveDirection = Vector3.Normalize(camProxy.right * input.inputDirection.x 
             + Vector3.Normalize(FlattenVector3(camProxy.forward)) * input.inputDirection.y);
         moveDirection *= moveSpeed;
         if (controller.isGrounded)
         {
             yVelocity = 0f;
+            zVelocity = 0f;
             if (input.sprint)
-                moveDirection *= 2f;
+                moveDirection *= 1.4f;
             
             if (input.jump)
+            {
                 yVelocity = jumpSpeed;
+                zVelocity = jumpSpeed;
+            }
+
         }
         yVelocity += gravityAcceleration;
 
         moveDirection.y = yVelocity;
+        moveDirection.z += zVelocity;
         controller.Move(moveDirection);
 
         return new StatePayload()
@@ -178,6 +186,7 @@ public class PlayerMovement : MonoBehaviour
             clientInputPayload.tick = message.GetUShort();
             clientInputPayload.inputDirection = message.GetVector2();
             clientInputPayload.camForward = message.GetVector3();
+            clientInputPayload.yRotation = message.GetFloat();
             clientInputPayload.jump = message.GetBool();
             clientInputPayload.sprint = message.GetBool();
             player.Movement.inputQueue.Enqueue(clientInputPayload);

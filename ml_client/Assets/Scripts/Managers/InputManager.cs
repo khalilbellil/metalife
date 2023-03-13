@@ -45,12 +45,16 @@ public class InputManager
 
     public void FillInputPackage(InputPkg _toFill)
     {
-        _toFill.deltaMouse.x = Input.GetAxis("Mouse X");
-        _toFill.deltaMouse.y = Input.GetAxis("Mouse Y");
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            _toFill.deltaMouse.x = Input.GetAxis("Mouse X");
+            _toFill.deltaMouse.y = -Input.GetAxis("Mouse Y");
+        }
         if (Camera.main)
             _toFill.mousePosToRay = MousePosToRay(Input.mousePosition);
         else
             Debug.LogWarning("You need to tag a Main Camera !");
+
         //if (PlayerManager.Instance.player)
         //    _toFill.aimingDirection = (Camera.main.ScreenToWorldPoint(Input.mousePosition) - PlayerManager.Instance.player.transform.position).normalized;
         _toFill.leftMouseButtonPressed = Input.GetMouseButtonDown(0);

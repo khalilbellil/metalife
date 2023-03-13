@@ -8,7 +8,8 @@ public struct InputPayload
 {
     public ushort tick;
     public Vector2 inputDirection;
-    public Vector3 camForward;
+    public float mouseVertical;
+    public float mouseHorizontal;
     public bool jump;
     public bool sprint;
 }
@@ -17,20 +18,23 @@ public struct StatePayload
 {
     public ushort tick;
     public Vector3 position;
+    public Vector3 rotation;
 }
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private CharacterController controller;
-    [SerializeField] private Transform camTransform;
+    [SerializeField] private Transform cameraTransform;
 
     private float gravityAcceleration;
     private float moveSpeed;
     private float jumpSpeed;
 
     private bool[] inputs;
-    private float yVelocity;
+    private float yVelocity, zVelocity;
     private bool didTeleport;
+    private bool sprintedBeforeJump = false;
+    private bool walkingBeforeJump = false;
 
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
@@ -38,12 +42,25 @@ public class PlayerController : MonoBehaviour
     public StatePayload latestServerState;
     private StatePayload lastProcessedState;
 
+    public ushort speed = 5; // player movement speed
+    public ushort jumpHeight = 2; // jump height
+    public float gravity = -9.81f; // gravity
+    private Vector3 velocity;
+    [SerializeField] private float sensitivity = 100f;
+    [SerializeField] private float clampAngle = 85f;
+
+    private float verticalRotation;
+    private float horizontalRotation;
+
     private void Start()
     {
         Initialize();
         inputs = new bool[6];
         stateBuffer = new StatePayload[BUFFER_SIZE];
         inputBuffer = new InputPayload[BUFFER_SIZE];
+
+        verticalRotation = cameraTransform.localEulerAngles.x;
+        horizontalRotation = transform.eulerAngles.y;
     }
     private void Update()
     {
@@ -51,15 +68,16 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        Move(GetInputDirection(), camTransform.forward, InputManager.Instance.inputPressed.jump, 
-            InputManager.Instance.inputPressed.sprint);
+        Move(GetInputDirection(), InputManager.Instance.inputPressed.deltaMouse.x, 
+            InputManager.Instance.inputPressed.deltaMouse.y, 
+            InputManager.Instance.inputPressed.jump, InputManager.Instance.inputPressed.sprint);
 
         for (int i = 0; i < inputs.Length; i++)
             inputs[i] = false;
     }
     private void Initialize()
     {
-        gravityAcceleration = NetworkManager.Instance.gravity * Time.fixedDeltaTime * Time.fixedDeltaTime;
+        gravityAcceleration = NetworkManager.Instance.gravity * Time.fixedDeltaTime * Time.fixedDeltaTime * NetworkManager.Instance.gravityMultiplier;
         moveSpeed = Convert.ToSingle(NetworkManager.Instance.movementSpeed) * Time.fixedDeltaTime;
         jumpSpeed = Mathf.Sqrt(Convert.ToSingle(NetworkManager.Instance.jumpHeight) * -2f * gravityAcceleration);
     }
@@ -83,7 +101,8 @@ public class PlayerController : MonoBehaviour
         if (InputManager.Instance.inputPressed.sprint)
             inputs[5] = true;
     }
-    private void Move(Vector2 inputDirection, Vector3 camForward, bool jump, bool sprint)
+    private void Move(Vector2 inputDirection, float mouseHorizontal, float mouseVertical, bool jump, 
+        bool sprint)
     {
         if (!latestServerState.Equals(default(StatePayload)) &&
             (lastProcessedState.Equals(default(StatePayload)) ||
@@ -91,14 +110,15 @@ public class PlayerController : MonoBehaviour
         {
             HandleServerReconciliation();
         }
-        ushort currentTick = NetworkManager.Instance.ServerTick;
+        ushort currentTick = NetworkManager.Instance.InterpolationTick;
         int bufferIndex = currentTick % BUFFER_SIZE;
 
         // Add payload to inputBuffer
         InputPayload inputPayload = new InputPayload();
         inputPayload.tick = currentTick;
         inputPayload.inputDirection = inputDirection;
-        inputPayload.camForward = camForward;
+        inputPayload.mouseHorizontal = mouseHorizontal;
+        inputPayload.mouseVertical = mouseVertical;
         inputPayload.jump = jump;
         inputPayload.sprint = sprint;
         inputBuffer[bufferIndex] = inputPayload;
@@ -111,29 +131,45 @@ public class PlayerController : MonoBehaviour
     }
     StatePayload ProcessMovement(InputPayload input)
     {
+        float deltaTime = Time.fixedDeltaTime;
         // Should always be in sync with same function on Server
-        camTransform.rotation = Quaternion.LookRotation(input.camForward);
-        Vector3 moveDirection = Vector3.Normalize(camTransform.right * input.inputDirection.x 
-            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * input.inputDirection.y);
-        moveDirection *= moveSpeed;
-        if (controller.isGrounded)
+
+        float moveHorizontal = input.inputDirection.x; // get horizontal movement input
+        float moveVertical = input.inputDirection.y; // get vertical movement input
+
+        // Rotate camera and player in the direction of movement
+        verticalRotation += input.mouseVertical * sensitivity * deltaTime;
+        horizontalRotation += input.mouseHorizontal * sensitivity * deltaTime;
+        verticalRotation = Mathf.Clamp(verticalRotation, -clampAngle, clampAngle);
+        cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+
+        // Create movement vector based on player direction
+        Vector3 movement = (transform.forward * moveVertical + transform.right * moveHorizontal).normalized;
+
+        // Apply gravity to velocity
+        velocity.y += gravity * deltaTime;
+
+        // Apply jump if player is on the ground
+        if (controller.isGrounded && input.jump)
         {
-            yVelocity = 0f;
-            if (input.sprint)
-                moveDirection *= 2f;
-
-            if (input.jump)
-                yVelocity = jumpSpeed;
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
-        yVelocity += gravityAcceleration;
 
-        moveDirection.y = yVelocity;
-        controller.Move(moveDirection);
+        // Apply movement to the CharacterController component
+        controller.Move((movement * speed + velocity) * deltaTime);
+
+        // Reset velocity if player is on the ground
+        if (controller.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
 
         return new StatePayload()
         {
             tick = input.tick,
             position = transform.position,
+            rotation = transform.rotation.eulerAngles,
         };
     }
     void HandleServerReconciliation()
@@ -142,12 +178,14 @@ public class PlayerController : MonoBehaviour
 
         int serverStateBufferIndex = latestServerState.tick % BUFFER_SIZE;
         float positionError = Vector3.Distance(latestServerState.position, stateBuffer[serverStateBufferIndex].position);
+        float rotationError = Vector3.Distance(latestServerState.rotation, stateBuffer[serverStateBufferIndex].rotation);
 
-        if (positionError > 0.001f)
+        if (positionError > 0.001f || rotationError > 0.001f)
         {
             Debug.Log("We have to reconcile bro");
             // Rewind & Replay
             transform.position = latestServerState.position;
+            transform.rotation = Quaternion.Euler(latestServerState.rotation);
 
             // Update buffer at index of latest server state
             stateBuffer[serverStateBufferIndex] = latestServerState;
@@ -172,20 +210,17 @@ public class PlayerController : MonoBehaviour
     private Vector2 GetInputDirection()
     {
         Vector2 inputDirection = Vector2.zero;
-        if (controller.isGrounded)
-        {
-            if (inputs[0])
-                inputDirection.y += 1;
+        if (inputs[0])
+            inputDirection.y += 1;
 
-            if (inputs[1])
-                inputDirection.y -= 1;
+        if (inputs[1])
+            inputDirection.y -= 1;
 
-            if (inputs[2])
-                inputDirection.x -= 1;
+        if (inputs[2])
+            inputDirection.x -= 1;
 
-            if (inputs[3])
-                inputDirection.x += 1;
-        }
+        if (inputs[3])
+            inputDirection.x += 1;
 
         return inputDirection;
     }
@@ -201,9 +236,11 @@ public class PlayerController : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerId.input);
         message.AddUShort(inputPayload.tick);
         message.AddVector2(inputPayload.inputDirection);
-        message.AddVector3(inputPayload.camForward);
+        message.AddFloat(inputPayload.mouseHorizontal);
+        message.AddFloat(inputPayload.mouseVertical);
         message.AddBool(inputPayload.jump);
         message.AddBool(inputPayload.sprint);
+        
         NetworkManager.Instance.Client.Send(message);
     }
     #endregion

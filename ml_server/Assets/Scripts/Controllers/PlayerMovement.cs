@@ -8,8 +8,8 @@ public struct InputPayload
 {
     public ushort tick;
     public Vector2 inputDirection;
-    public Vector3 camForward;
-    public float yRotation;
+    public float mouseVertical;
+    public float mouseHorizontal;
     public bool jump;
     public bool sprint;
 }
@@ -17,6 +17,7 @@ public struct StatePayload
 {
     public ushort tick;
     public Vector3 position;
+    public Vector3 rotation;
 }
 
 [RequireComponent(typeof(CharacterController))]
@@ -40,6 +41,16 @@ public class PlayerMovement : MonoBehaviour
     private StatePayload[] stateBuffer;
     private Queue<InputPayload> inputQueue;
 
+    public ushort speed = 5; // player movement speed
+    public ushort jumpHeight = 2; // jump height
+    public float gravity = -9.81f; // gravity
+    private Vector3 velocity;
+    [SerializeField] private float sensitivity = 100f;
+    [SerializeField] private float clampAngle = 85f;
+
+    private float verticalRotation;
+    private float horizontalRotation;
+
     private void OnValidate()
     {
         if (controller == null)
@@ -57,6 +68,8 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
+
+        Debug.DrawRay(camProxy.position, camProxy.forward * 2f, Color.green);
     }
     private void Initialize()
     {
@@ -87,63 +100,49 @@ public class PlayerMovement : MonoBehaviour
     }
     StatePayload ProcessMovement(InputPayload input)
     {
-        Transform camTransform = camProxy;
+        float deltaTime = Time.fixedDeltaTime;
+        Transform cameraTransform = camProxy;
         // Should always be in sync with same function on Client
-        camTransform.rotation = Quaternion.LookRotation(input.camForward); // cam rotation sync
-        transform.localEulerAngles = new Vector3(0, input.yRotation, 0); // player rotation sync
 
-        Vector3 moveDirection;
-        if (!controller.isGrounded)
+        float moveHorizontal = input.inputDirection.x; // get horizontal movement input
+        float moveVertical = input.inputDirection.y; // get vertical movement input
+
+        // Rotate camera and player in the direction of movement
+        verticalRotation += input.mouseVertical * sensitivity * deltaTime;
+        horizontalRotation += input.mouseHorizontal * sensitivity * deltaTime;
+        verticalRotation = Mathf.Clamp(verticalRotation, -clampAngle, clampAngle);
+        cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+
+        // Create movement vector based on player direction
+        Vector3 movement = (transform.forward * moveVertical + transform.right * moveHorizontal).normalized;
+
+        // Apply gravity to velocity
+        velocity.y += gravity * deltaTime;
+
+        // Apply jump if player is on the ground
+        if (controller.isGrounded && input.jump)
         {
-            Vector2 inputDirection = Vector2.zero;
-            if (walkingBeforeJump)
-            {
-                inputDirection.y = 1 * Time.fixedDeltaTime; // apply forward jump force
-            }
-            moveDirection = Vector3.Normalize(camTransform.right * inputDirection.x
-            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * inputDirection.y);
-            if (sprintedBeforeJump)
-            {
-                moveDirection *= 2f;
-            }
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
-        else
+
+        // Apply movement to the CharacterController component
+        controller.Move((movement * speed + velocity) * deltaTime);
+
+        // Reset velocity if player is on the ground
+        if (controller.isGrounded && velocity.y < 0)
         {
-            moveDirection = Vector3.Normalize(camTransform.right * input.inputDirection.x
-            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * input.inputDirection.y);
-            moveDirection *= moveSpeed;
-
-            sprintedBeforeJump = false;
-            walkingBeforeJump = false;
-            if (input.inputDirection.y >= 1 && input.jump)
-                walkingBeforeJump = true;
-            if (input.jump && input.sprint)
-                sprintedBeforeJump = true;
-            yVelocity = 0f;
-
-            if (input.sprint)
-                moveDirection *= 1.4f;
-
-            if (input.jump)
-            {
-                yVelocity = jumpSpeed;
-                if (input.sprint)
-                {
-                    yVelocity *= 1.3f; // apply upward jump force
-                }
-            }
+            velocity.y = -2f;
         }
-        yVelocity += gravityAcceleration;
-        moveDirection.y = yVelocity;
-
-        controller.Move(moveDirection);
 
         return new StatePayload()
         {
             tick = input.tick,
             position = transform.position,
+            rotation = transform.rotation.eulerAngles,
         };
     }
+
     public void Enabled(bool value)
     {
         enabled = value;
@@ -199,6 +198,7 @@ public class PlayerMovement : MonoBehaviour
         message.AddUShort(player.Id);
         message.AddUShort(statePayload.tick);
         message.AddVector3(statePayload.position);
+        message.AddVector3(statePayload.rotation);
         message.AddVector3(camProxy.forward);
         NetworkManager.Singleton.Server.SendToAll(message);
     }
@@ -211,8 +211,8 @@ public class PlayerMovement : MonoBehaviour
             InputPayload clientInputPayload = new InputPayload();
             clientInputPayload.tick = message.GetUShort();
             clientInputPayload.inputDirection = message.GetVector2();
-            clientInputPayload.camForward = message.GetVector3();
-            clientInputPayload.yRotation = message.GetFloat();
+            clientInputPayload.mouseHorizontal = message.GetFloat();
+            clientInputPayload.mouseVertical = message.GetFloat();
             clientInputPayload.jump = message.GetBool();
             clientInputPayload.sprint = message.GetBool();
             player.Movement.inputQueue.Enqueue(clientInputPayload);

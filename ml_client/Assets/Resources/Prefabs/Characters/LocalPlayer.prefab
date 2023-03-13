@@ -292,7 +292,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 6168599849233156887}
-  camTransform: {fileID: 5535347378174684004}
+  cameraTransform: {fileID: 5535347378174684004}
+  speed: 5
+  jumpHeight: 2
+  gravity: -9.81
 --- !u!114 &4559814115611967028
 MonoBehaviour:
   m_ObjectHideFlags: 0

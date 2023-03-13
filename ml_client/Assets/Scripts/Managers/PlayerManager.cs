@@ -78,6 +78,7 @@ public class PlayerManager
             StatePayload serverState = new StatePayload();
             serverState.tick = message.GetUShort();
             serverState.position = message.GetVector3();
+            serverState.rotation = message.GetVector3();
             Vector3 forward = message.GetVector3();
             if (playerId == NetworkManager.Instance.Client.Id)
             {
@@ -87,7 +88,6 @@ public class PlayerManager
             {
                 player.Move(serverState.tick, false, serverState.position, forward);
             }
-            
         }
     }
     #endregion

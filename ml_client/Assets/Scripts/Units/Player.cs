@@ -34,14 +34,11 @@ public class Player : MonoBehaviour
         PlayerManager.Instance.list.Remove(Id);
     }
 
-    public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 forward)
+    public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 newRotation)
     {
-        interpolator.NewUpdate(tick, isTeleport, newPosition);
+        interpolator.NewUpdate(tick, isTeleport, newPosition, newRotation);
 
-        if (!IsLocal)
-            camTransform.forward = forward;
-
-        animationManager.AnimateBasedOnSpeed();
+        //animationManager.AnimateBasedOnSpeed();
     }
 
     #region Getter/Setter

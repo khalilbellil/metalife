@@ -79,14 +79,13 @@ public class PlayerManager
             serverState.tick = message.GetUShort();
             serverState.position = message.GetVector3();
             serverState.rotation = message.GetVector3();
-            Vector3 forward = message.GetVector3();
             if (playerId == NetworkManager.Instance.Client.Id)
             {
                 player.playerController.latestServerState = serverState;
             }
             else
             {
-                player.Move(serverState.tick, false, serverState.position, forward);
+                player.Move(serverState.tick, false, serverState.position, serverState.rotation);
             }
         }
     }

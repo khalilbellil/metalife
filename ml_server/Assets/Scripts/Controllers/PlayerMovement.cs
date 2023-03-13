@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
 
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
-    private Queue<InputPayload> inputQueue;
+    public Queue<InputPayload> inputQueue;
 
     public ushort speed = 5; // player movement speed
     public ushort jumpHeight = 2; // jump height
@@ -199,24 +199,7 @@ public class PlayerMovement : MonoBehaviour
         message.AddUShort(statePayload.tick);
         message.AddVector3(statePayload.position);
         message.AddVector3(statePayload.rotation);
-        message.AddVector3(camProxy.forward);
         NetworkManager.Singleton.Server.SendToAll(message);
-    }
-
-    [MessageHandler((ushort)ClientToServerId.input)]
-    private static void Input(ushort fromClientId, Message message)
-    {
-        if (PlayerManager.Instance.list.TryGetValue(fromClientId, out Player player))
-        {
-            InputPayload clientInputPayload = new InputPayload();
-            clientInputPayload.tick = message.GetUShort();
-            clientInputPayload.inputDirection = message.GetVector2();
-            clientInputPayload.mouseHorizontal = message.GetFloat();
-            clientInputPayload.mouseVertical = message.GetFloat();
-            clientInputPayload.jump = message.GetBool();
-            clientInputPayload.sprint = message.GetBool();
-            player.Movement.inputQueue.Enqueue(clientInputPayload);
-        }
     }
     #endregion
 }

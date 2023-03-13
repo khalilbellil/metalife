@@ -22,7 +22,7 @@ public class Interpolator : MonoBehaviour
         previous = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, transform.position);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         for (int i = 0; i < futureTransformUpdates.Count; i++)
         {
@@ -39,7 +39,8 @@ public class Interpolator : MonoBehaviour
                 {
                     previous = to;
                     to = futureTransformUpdates[i];
-                    from = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, transform.position);
+                    from = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false, 
+                        transform.position);
                 }
 
                 futureTransformUpdates.RemoveAt(i);
@@ -52,6 +53,7 @@ public class Interpolator : MonoBehaviour
 
         timeElapsed += Time.deltaTime;
         InterpolatePosition(timeElapsed / timeToReachTarget);
+        InterpolateRotation(timeElapsed / timeToReachTarget);
     }
 
     private void InterpolatePosition(float lerpAmount)
@@ -67,7 +69,21 @@ public class Interpolator : MonoBehaviour
         transform.position = Vector3.LerpUnclamped(from.Position, to.Position, lerpAmount);
     }
 
-    public void NewUpdate(ushort tick, bool isTeleport, Vector3 position)
+    private void InterpolateRotation(float lerpAmount)
+    {
+        if ((to.Rotation - previous.Rotation).sqrMagnitude < squareMovementThreshold)
+        {
+            if (to.Rotation != from.Rotation)
+                transform.rotation = Quaternion.Lerp(Quaternion.Euler(from.Rotation),
+                    Quaternion.Euler(to.Rotation), lerpAmount);
+            return;
+        }
+
+        transform.rotation = Quaternion.LerpUnclamped(Quaternion.Euler(from.Rotation),
+                    Quaternion.Euler(to.Rotation), lerpAmount);
+    }
+
+    public void NewUpdate(ushort tick, bool isTeleport, Vector3 position, Vector3 rotation)
     {
         if (tick <= NetworkManager.Instance.InterpolationTick && !isTeleport)
             return;
@@ -76,11 +92,11 @@ public class Interpolator : MonoBehaviour
         {
             if (tick < futureTransformUpdates[i].Tick)
             {
-                futureTransformUpdates.Insert(i, new TransformUpdate(tick, isTeleport, position));
+                futureTransformUpdates.Insert(i, new TransformUpdate(tick, isTeleport, position, rotation));
                 return;
             }
         }
 
-        futureTransformUpdates.Add(new TransformUpdate(tick, isTeleport, position));
+        futureTransformUpdates.Add(new TransformUpdate(tick, isTeleport, position, rotation));
     }
 }

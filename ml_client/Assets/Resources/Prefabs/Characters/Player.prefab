@@ -31,7 +31,7 @@ Transform:
   m_Children:
   - {fileID: 2517357619338656940}
   m_Father: {fileID: 2320796199946501343}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &3646308591570262066
 Animator:
@@ -76,12 +76,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1161703213785572636}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.641, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.6452, z: 0.1007}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2320796199946501343}
+  m_Father: {fileID: 4004493210745791459}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7673061599552897066
@@ -115,7 +115,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6802841374510514998}
   - {fileID: 3055109811031102420}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -135,6 +134,7 @@ MonoBehaviour:
   animationManager: {fileID: 4013454489882656930}
   camTransform: {fileID: 6802841374510514998}
   interpolator: {fileID: 647391602048284642}
+  playerController: {fileID: 0}
 --- !u!114 &4013454489882656930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,5 +224,10 @@ PrefabInstance:
 --- !u!4 &2517357619338656940 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 02f5534d0743cfb43b4e0a52adbe3786, type: 3}
+  m_PrefabInstance: {fileID: 2694782155135966023}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4004493210745791459 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7856781009880631132, guid: 02f5534d0743cfb43b4e0a52adbe3786, type: 3}
   m_PrefabInstance: {fileID: 2694782155135966023}
   m_PrefabAsset: {fileID: 0}

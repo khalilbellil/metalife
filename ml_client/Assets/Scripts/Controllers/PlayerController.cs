@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private bool[] inputs;
     private float yVelocity, zVelocity;
     private bool didTeleport;
+    private bool sprintedBeforeJump = false;
+    private bool walkingBeforeJump = false;
 
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
@@ -114,29 +116,53 @@ public class PlayerController : MonoBehaviour
     StatePayload ProcessMovement(InputPayload input)
     {
         // Should always be in sync with same function on Server
-        camTransform.rotation = Quaternion.LookRotation(input.camForward);
-        transform.localEulerAngles = new Vector3(0, input.yRotation, 0);
-        Vector3 moveDirection = Vector3.Normalize(camTransform.right * input.inputDirection.x 
-            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * input.inputDirection.y);
-        moveDirection *= moveSpeed;
-        if (controller.isGrounded)
+        camTransform.rotation = Quaternion.LookRotation(input.camForward); // cam rotation sync
+        transform.localEulerAngles = new Vector3(0, input.yRotation, 0); // player rotation sync
+
+        Vector3 moveDirection;
+        if (!controller.isGrounded)
         {
+            Vector2 inputDirection = Vector2.zero;
+            if (walkingBeforeJump)
+            {
+                inputDirection.y = 1 * Time.fixedDeltaTime; // apply forward jump force
+            }
+            moveDirection = Vector3.Normalize(camTransform.right * inputDirection.x
+            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * inputDirection.y);
+            if (sprintedBeforeJump)
+            {
+                moveDirection *= 2f;
+            }
+        }
+        else
+        {
+            moveDirection = Vector3.Normalize(camTransform.right * input.inputDirection.x
+            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * input.inputDirection.y);
+            moveDirection *= moveSpeed;
+
+            sprintedBeforeJump = false;
+            walkingBeforeJump = false;
+            if (input.inputDirection.y >= 1 && input.jump)
+                walkingBeforeJump = true;
+            if (input.jump && input.sprint)
+                sprintedBeforeJump = true;
             yVelocity = 0f;
-            zVelocity = 0f;
+
             if (input.sprint)
                 moveDirection *= 1.4f;
 
             if (input.jump)
             {
                 yVelocity = jumpSpeed;
-                zVelocity = jumpSpeed;
+                if (input.sprint)
+                {
+                    yVelocity *= 1.3f; // apply upward jump force
+                }
             }
-
         }
         yVelocity += gravityAcceleration;
-
         moveDirection.y = yVelocity;
-        moveDirection.z += zVelocity;
+
         controller.Move(moveDirection);
 
         return new StatePayload()
@@ -181,20 +207,17 @@ public class PlayerController : MonoBehaviour
     private Vector2 GetInputDirection()
     {
         Vector2 inputDirection = Vector2.zero;
-        if (controller.isGrounded)
-        {
-            if (inputs[0])
-                inputDirection.y += 1;
+        if (inputs[0])
+            inputDirection.y += 1;
 
-            if (inputs[1])
-                inputDirection.y -= 1;
+        if (inputs[1])
+            inputDirection.y -= 1;
 
-            if (inputs[2])
-                inputDirection.x -= 1;
+        if (inputs[2])
+            inputDirection.x -= 1;
 
-            if (inputs[3])
-                inputDirection.x += 1;
-        }
+        if (inputs[3])
+            inputDirection.x += 1;
 
         return inputDirection;
     }

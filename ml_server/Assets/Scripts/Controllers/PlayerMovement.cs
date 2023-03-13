@@ -31,8 +31,10 @@ public class PlayerMovement : MonoBehaviour
     private float jumpSpeed;
 
     private bool[] inputs;
-    private float yVelocity, zVelocity;
+    private float yVelocity;
     private bool didTeleport;
+    private bool sprintedBeforeJump = false;
+    private bool walkingBeforeJump = false;
 
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
@@ -85,30 +87,55 @@ public class PlayerMovement : MonoBehaviour
     }
     StatePayload ProcessMovement(InputPayload input)
     {
+        Transform camTransform = camProxy;
         // Should always be in sync with same function on Client
-        camProxy.rotation = Quaternion.LookRotation(input.camForward);
-        transform.localEulerAngles = new Vector3(0, input.yRotation, 0);
-        Vector3 moveDirection = Vector3.Normalize(camProxy.right * input.inputDirection.x 
-            + Vector3.Normalize(FlattenVector3(camProxy.forward)) * input.inputDirection.y);
-        moveDirection *= moveSpeed;
-        if (controller.isGrounded)
+        camTransform.rotation = Quaternion.LookRotation(input.camForward); // cam rotation sync
+        transform.localEulerAngles = new Vector3(0, input.yRotation, 0); // player rotation sync
+
+        Vector3 moveDirection;
+        if (!controller.isGrounded)
         {
+            Vector2 inputDirection = Vector2.zero;
+            if (walkingBeforeJump)
+            {
+                inputDirection.y = 1 * Time.fixedDeltaTime; // apply forward jump force
+            }
+            moveDirection = Vector3.Normalize(camTransform.right * inputDirection.x
+            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * inputDirection.y);
+            if (sprintedBeforeJump)
+            {
+                moveDirection *= 2f;
+            }
+        }
+        else
+        {
+            moveDirection = Vector3.Normalize(camTransform.right * input.inputDirection.x
+            + Vector3.Normalize(FlattenVector3(camTransform.forward)) * input.inputDirection.y);
+            moveDirection *= moveSpeed;
+
+            sprintedBeforeJump = false;
+            walkingBeforeJump = false;
+            if (input.inputDirection.y >= 1 && input.jump)
+                walkingBeforeJump = true;
+            if (input.jump && input.sprint)
+                sprintedBeforeJump = true;
             yVelocity = 0f;
-            zVelocity = 0f;
+
             if (input.sprint)
                 moveDirection *= 1.4f;
-            
+
             if (input.jump)
             {
                 yVelocity = jumpSpeed;
-                zVelocity = jumpSpeed;
+                if (input.sprint)
+                {
+                    yVelocity *= 1.3f; // apply upward jump force
+                }
             }
-
         }
         yVelocity += gravityAcceleration;
-
         moveDirection.y = yVelocity;
-        moveDirection.z += zVelocity;
+
         controller.Move(moveDirection);
 
         return new StatePayload()
@@ -122,7 +149,6 @@ public class PlayerMovement : MonoBehaviour
         enabled = value;
         controller.enabled = value;
     }
-
     public void Teleport(Vector3 toPosition)
     {
         bool isEnabled = controller.enabled;
@@ -163,6 +189,7 @@ public class PlayerMovement : MonoBehaviour
         camProxy.forward = forward;
     }
 
+    #region Messages
     private void SendMovement(StatePayload statePayload)
     {
         if (NetworkManager.Singleton.CurrentTick % 2 != 0)
@@ -176,7 +203,6 @@ public class PlayerMovement : MonoBehaviour
         NetworkManager.Singleton.Server.SendToAll(message);
     }
 
-    #region Messages
     [MessageHandler((ushort)ClientToServerId.input)]
     private static void Input(ushort fromClientId, Message message)
     {

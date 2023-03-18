@@ -1,7 +1,5 @@
 using Riptide;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public struct InputPayload
@@ -26,31 +24,34 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CharacterController controller;
     [SerializeField] private Transform cameraTransform;
 
+#region Inputs & Physics
+    private bool[] inputs;
+    public ushort speed = 5; // player movement speed
+    public ushort jumpHeight = 1; // jump height
+    public float gravity = -9.81f; // gravity
     private float gravityAcceleration;
     private float moveSpeed;
     private float jumpSpeed;
-
-    private bool[] inputs;
-    private float yVelocity, zVelocity;
     private bool didTeleport;
     private bool sprintedBeforeJump = false;
     private bool walkingBeforeJump = false;
+    private Vector3 velocity;
+    [SerializeField] private float sensitivity = 100f;
+    [SerializeField] private float clampAngle = 85f;
+    private float verticalRotation;
+    private float horizontalRotation;
+#endregion
 
+#region Prediction & Reconciliation
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
     private InputPayload[] inputBuffer;
     public StatePayload latestServerState;
     private StatePayload lastProcessedState;
-
-    public ushort speed = 5; // player movement speed
-    public ushort jumpHeight = 2; // jump height
-    public float gravity = -9.81f; // gravity
-    private Vector3 velocity;
-    [SerializeField] private float sensitivity = 100f;
-    [SerializeField] private float clampAngle = 85f;
-
-    private float verticalRotation;
-    private float horizontalRotation;
+    public bool isReconciling = false;
+    private const float POSITION_THRESHOLD = 0.001f;
+    private const float ROTATION_THRESHOLD = 5f; // Angle in degres
+#endregion
 
     private void Start()
     {
@@ -81,26 +82,7 @@ public class PlayerController : MonoBehaviour
         moveSpeed = Convert.ToSingle(NetworkManager.Instance.movementSpeed) * Time.fixedDeltaTime;
         jumpSpeed = Mathf.Sqrt(Convert.ToSingle(NetworkManager.Instance.jumpHeight) * -2f * gravityAcceleration);
     }
-    private void UpdateInputs()
-    {
-        if (InputManager.Instance.inputPressed.forward)
-            inputs[0] = true;
 
-        if (InputManager.Instance.inputPressed.backward)
-            inputs[1] = true;
-
-        if (InputManager.Instance.inputPressed.left)
-            inputs[2] = true;
-
-        if (InputManager.Instance.inputPressed.right)
-            inputs[3] = true;
-
-        if (InputManager.Instance.inputPressed.jump)
-            inputs[4] = true;
-
-        if (InputManager.Instance.inputPressed.sprint)
-            inputs[5] = true;
-    }
     private void Move(Vector2 inputDirection, float mouseHorizontal, float mouseVertical, bool jump, 
         bool sprint)
     {
@@ -110,7 +92,7 @@ public class PlayerController : MonoBehaviour
         {
             HandleServerReconciliation();
         }
-        ushort currentTick = NetworkManager.Instance.InterpolationTick;
+        ushort currentTick = NetworkManager.Instance.ServerTick;
         int bufferIndex = currentTick % BUFFER_SIZE;
 
         // Add payload to inputBuffer
@@ -174,38 +156,65 @@ public class PlayerController : MonoBehaviour
     }
     void HandleServerReconciliation()
     {
-        lastProcessedState = latestServerState;
+        if(!isReconciling){
+            lastProcessedState = latestServerState;
 
-        int serverStateBufferIndex = latestServerState.tick % BUFFER_SIZE;
-        float positionError = Vector3.Distance(latestServerState.position, stateBuffer[serverStateBufferIndex].position);
-        float rotationError = Vector3.Distance(latestServerState.rotation, stateBuffer[serverStateBufferIndex].rotation);
+            int serverStateBufferIndex = latestServerState.tick % BUFFER_SIZE;
+            float positionError = (latestServerState.position - stateBuffer[serverStateBufferIndex].position).sqrMagnitude;
+            float rotationError = Quaternion.Angle(Quaternion.Euler(latestServerState.rotation), Quaternion.Euler(stateBuffer[serverStateBufferIndex].rotation)) * Mathf.Deg2Rad;
 
-        if (positionError > 0.001f || rotationError > 0.001f)
-        {
-            Debug.Log("We have to reconcile bro");
-            // Rewind & Replay
-            transform.position = latestServerState.position;
-            transform.rotation = Quaternion.Euler(latestServerState.rotation);
-
-            // Update buffer at index of latest server state
-            stateBuffer[serverStateBufferIndex] = latestServerState;
-
-            // Now re-simulate the rest of the ticks up to the current tick on the client
-            int tickToProcess = latestServerState.tick + 1;
-
-            while (tickToProcess < NetworkManager.Instance.ServerTick)
+            if (positionError > POSITION_THRESHOLD || rotationError > ROTATION_THRESHOLD)
             {
-                int bufferIndex = tickToProcess % BUFFER_SIZE;
+                Debug.Log("Reconciling player state");
+                
+                // Set the flag to indicate that we're reconciling
+                isReconciling = true;
 
-                // Process new movement with reconciled state
-                StatePayload statePayload = ProcessMovement(inputBuffer[bufferIndex]);
+                // Reset player position and rotation to latest server state
+                transform.position = latestServerState.position;
+                transform.rotation = Quaternion.Euler(latestServerState.rotation);
 
-                // Update buffer with recalculated state
-                stateBuffer[bufferIndex] = statePayload;
+                // Update the state buffer at the index of the latest server state
+                stateBuffer[serverStateBufferIndex] = latestServerState;
 
-                tickToProcess++;
+                // Re-simulate movement for ticks between the latest server state and current client tick
+                ushort currentClientTick = NetworkManager.Instance.ServerTick;
+                for (int tickToProcess = latestServerState.tick + 1; tickToProcess < currentClientTick; tickToProcess++)
+                {
+                    int bufferIndex = tickToProcess % BUFFER_SIZE;
+                    
+                    // Process new movement with reconciled state
+                    StatePayload statePayload = ProcessMovement(inputBuffer[bufferIndex]);
+                    Debug.Log("Reconciliation done");
+                    
+                    // Update buffer with recalculated state
+                    stateBuffer[bufferIndex] = statePayload;
+                }
+
+                // Reset the flag to indicate that we've finished reconciling
+                isReconciling = false;
             }
         }
+    }
+    private void UpdateInputs()
+    {
+        if (InputManager.Instance.inputPressed.forward)
+            inputs[0] = true;
+
+        if (InputManager.Instance.inputPressed.backward)
+            inputs[1] = true;
+
+        if (InputManager.Instance.inputPressed.left)
+            inputs[2] = true;
+
+        if (InputManager.Instance.inputPressed.right)
+            inputs[3] = true;
+
+        if (InputManager.Instance.inputPressed.jump)
+            inputs[4] = true;
+
+        if (InputManager.Instance.inputPressed.sprint)
+            inputs[5] = true;
     }
     private Vector2 GetInputDirection()
     {
@@ -223,11 +232,6 @@ public class PlayerController : MonoBehaviour
             inputDirection.x += 1;
 
         return inputDirection;
-    }
-    private Vector3 FlattenVector3(Vector3 vector)
-    {
-        vector.y = 0;
-        return vector;
     }
 
     #region Messages

@@ -36,9 +36,8 @@ public class Player : MonoBehaviour
 
     public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 newRotation)
     {
-        interpolator.NewUpdate(tick, isTeleport, newPosition, newRotation);
-
-        //animationManager.AnimateBasedOnSpeed();
+        //interpolator.NewUpdate(tick, isTeleport, newPosition, newRotation);
+        interpolator.AddTransformUpdate(new TransformUpdate(tick, isTeleport, newPosition, newRotation));
     }
 
     #region Getter/Setter

@@ -98,9 +98,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9053df585ca8bec4b84b22ebd3712e95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 4987277330703049612}
-  sensitivity: 100
-  clampAngle: 85
 --- !u!114 &2844874829852146154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,8 +291,11 @@ MonoBehaviour:
   controller: {fileID: 6168599849233156887}
   cameraTransform: {fileID: 5535347378174684004}
   speed: 5
-  jumpHeight: 2
+  jumpHeight: 1
   gravity: -9.81
+  sensitivity: 100
+  clampAngle: 85
+  isReconciling: 0
 --- !u!114 &4559814115611967028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,14 +317,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7673061599552897066}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b47d9e361ea6da8498b69c6ebb025327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeElapsed: 0
-  timeToReachTarget: 0.05
-  movementThreshold: 0.05
 --- !u!143 &6168599849233156887
 CharacterController:
   m_ObjectHideFlags: 0
@@ -336,13 +333,13 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 1.5
-  m_Radius: 0.2
+  m_Height: 1.55
+  m_Radius: 0.27
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.02
+  m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.7, z: 0}
+  m_Center: {x: 0, y: 0.84, z: 0}
 --- !u!1 &7925504170918417976
 GameObject:
   m_ObjectHideFlags: 0

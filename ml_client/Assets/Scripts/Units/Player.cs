@@ -20,13 +20,14 @@ public class Player : MonoBehaviour
         if (animationManager == null)
             animationManager = GetComponent<PlayerAnimationManager>();
 
-        if (playerController == null)
+        if (playerController == null){}
             playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
     {
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
+        playerController.player = this;
     }
 
     private void OnDestroy()

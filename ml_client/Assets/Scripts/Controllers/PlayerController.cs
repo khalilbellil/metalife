@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private CharacterController controller;
     [SerializeField] private Transform cameraTransform;
+    public Player player;
 
 #region Inputs & Physics
     private bool[] inputs;
@@ -46,13 +47,20 @@ public class PlayerController : MonoBehaviour
     private const int BUFFER_SIZE = 1024;
     private StatePayload[] stateBuffer;
     private InputPayload[] inputBuffer;
-    public StatePayload latestServerState;
+    private StatePayload latestServerState;
     private StatePayload lastProcessedState;
-    public bool isReconciling = false;
+    private bool isReconciling = false;
     private const float POSITION_THRESHOLD = 0.001f;
     private const float ROTATION_THRESHOLD = 5f; // Angle in degres
 #endregion
 
+    private void Initialize()
+    {
+        gravity = NetworkManager.Instance.gravity;
+        gravityAcceleration = NetworkManager.Instance.gravity * Time.fixedDeltaTime * Time.fixedDeltaTime * NetworkManager.Instance.gravityMultiplier;
+        moveSpeed = Convert.ToSingle(NetworkManager.Instance.movementSpeed) * Time.fixedDeltaTime;
+        jumpSpeed = Mathf.Sqrt(Convert.ToSingle(NetworkManager.Instance.jumpHeight) * -2f * gravityAcceleration);
+    }
     private void Start()
     {
         Initialize();
@@ -76,40 +84,95 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < inputs.Length; i++)
             inputs[i] = false;
     }
-    private void Initialize()
-    {
-        gravityAcceleration = NetworkManager.Instance.gravity * Time.fixedDeltaTime * Time.fixedDeltaTime * NetworkManager.Instance.gravityMultiplier;
-        moveSpeed = Convert.ToSingle(NetworkManager.Instance.movementSpeed) * Time.fixedDeltaTime;
-        jumpSpeed = Mathf.Sqrt(Convert.ToSingle(NetworkManager.Instance.jumpHeight) * -2f * gravityAcceleration);
-    }
-
-    private void Move(Vector2 inputDirection, float mouseHorizontal, float mouseVertical, bool jump, 
-        bool sprint)
+    private void Move(Vector2 inputDirection, float mouseHorizontal, float mouseVertical, bool jump, bool sprint)
     {
         if (!latestServerState.Equals(default(StatePayload)) &&
-            (lastProcessedState.Equals(default(StatePayload)) ||
-            !latestServerState.Equals(lastProcessedState)))
+        (lastProcessedState.Equals(default(StatePayload)) ||
+        !latestServerState.Equals(lastProcessedState)))
         {
-            HandleServerReconciliation();
+            if(!isReconciling){
+                isReconciling = true;
+                HandleServerReconciliation();
+                isReconciling = false;
+            }
         }
-        ushort currentTick = NetworkManager.Instance.ServerTick;
-        int bufferIndex = currentTick % BUFFER_SIZE;
 
-        // Add payload to inputBuffer
-        InputPayload inputPayload = new InputPayload();
-        inputPayload.tick = currentTick;
-        inputPayload.inputDirection = inputDirection;
-        inputPayload.mouseHorizontal = mouseHorizontal;
-        inputPayload.mouseVertical = mouseVertical;
-        inputPayload.jump = jump;
-        inputPayload.sprint = sprint;
-        inputBuffer[bufferIndex] = inputPayload;
+        if (!isReconciling)
+        {
+            ushort currentTick = NetworkManager.Instance.ServerTick;
+            int bufferIndex = currentTick % BUFFER_SIZE;
 
-        // Add payload to stateBuffer
-        stateBuffer[bufferIndex] = ProcessMovement(inputPayload);
+            // Add payload to inputBuffer
+            InputPayload inputPayload = new InputPayload();
+            inputPayload.tick = currentTick;
+            inputPayload.inputDirection = inputDirection;
+            inputPayload.mouseHorizontal = mouseHorizontal;
+            inputPayload.mouseVertical = mouseVertical;
+            inputPayload.jump = jump;
+            inputPayload.sprint = sprint;
+            inputBuffer[bufferIndex] = inputPayload;
 
-        // Send input to server
-        SendInput(inputPayload);
+            // Add payload to stateBuffer
+            stateBuffer[bufferIndex] = ProcessMovement(inputPayload);
+
+            // Send input to server
+            SendInput(inputPayload);
+        }
+    }
+    void HandleServerReconciliation()
+    {
+        lastProcessedState = latestServerState;
+
+        int serverStateBufferIndex = latestServerState.tick % BUFFER_SIZE;
+        float positionError = Vector3.Distance(latestServerState.position, stateBuffer[serverStateBufferIndex].position);
+        float rotationError = Quaternion.Angle(Quaternion.Euler(latestServerState.rotation), Quaternion.Euler(stateBuffer[serverStateBufferIndex].rotation));
+
+        if (positionError > 0.001f || rotationError > 0.001f)
+        {
+            Debug.Log("We have to reconcile bro");
+
+            // Save the current transform state
+            Vector3 currentPosition = transform.position;
+            Quaternion currentRotation = transform.rotation;
+
+            // Rewind to the server state
+            transform.position = latestServerState.position;
+            transform.rotation = Quaternion.Euler(latestServerState.rotation);
+
+            // Replay the inputs from the last processed state
+            int tickToProcess = lastProcessedState.tick + 1;
+            while (tickToProcess <= latestServerState.tick)
+            {
+                int bufferIndex = tickToProcess % BUFFER_SIZE;
+
+                // Process new movement with reconciled state
+                StatePayload statePayload = ProcessMovement(inputBuffer[bufferIndex]);
+
+                // Update buffer with recalculated state
+                stateBuffer[bufferIndex] = statePayload;
+
+                tickToProcess++;
+            }
+            int currentTick = NetworkManager.Instance.ServerTick;
+            // Replay the inputs after the server state
+            tickToProcess = latestServerState.tick + 1;
+            while (tickToProcess < currentTick)
+            {
+                int bufferIndex = tickToProcess % BUFFER_SIZE;
+
+                // Process new movement with current transform state
+                StatePayload statePayload = ProcessMovement(inputBuffer[bufferIndex]);
+
+                // Update buffer with recalculated state
+                stateBuffer[bufferIndex] = statePayload;
+
+                tickToProcess++;
+            }
+
+            // Set the transform state back to the server state
+            transform.position = latestServerState.position;
+            transform.rotation = Quaternion.Euler(latestServerState.rotation);
+        }
     }
     StatePayload ProcessMovement(InputPayload input)
     {
@@ -140,7 +203,7 @@ public class PlayerController : MonoBehaviour
 
         // Apply movement to the CharacterController component
         controller.Move((movement * speed + velocity) * deltaTime);
-
+        
         // Reset velocity if player is on the ground
         if (controller.isGrounded && velocity.y < 0)
         {
@@ -154,47 +217,10 @@ public class PlayerController : MonoBehaviour
             rotation = transform.rotation.eulerAngles,
         };
     }
-    void HandleServerReconciliation()
+    public void ProcessServerState(StatePayload state)
     {
-        if(!isReconciling){
-            lastProcessedState = latestServerState;
-
-            int serverStateBufferIndex = latestServerState.tick % BUFFER_SIZE;
-            float positionError = (latestServerState.position - stateBuffer[serverStateBufferIndex].position).sqrMagnitude;
-            float rotationError = Quaternion.Angle(Quaternion.Euler(latestServerState.rotation), Quaternion.Euler(stateBuffer[serverStateBufferIndex].rotation)) * Mathf.Deg2Rad;
-
-            if (positionError > POSITION_THRESHOLD || rotationError > ROTATION_THRESHOLD)
-            {
-                Debug.Log("Reconciling player state");
-                
-                // Set the flag to indicate that we're reconciling
-                isReconciling = true;
-
-                // Reset player position and rotation to latest server state
-                transform.position = latestServerState.position;
-                transform.rotation = Quaternion.Euler(latestServerState.rotation);
-
-                // Update the state buffer at the index of the latest server state
-                stateBuffer[serverStateBufferIndex] = latestServerState;
-
-                // Re-simulate movement for ticks between the latest server state and current client tick
-                ushort currentClientTick = NetworkManager.Instance.ServerTick;
-                for (int tickToProcess = latestServerState.tick + 1; tickToProcess < currentClientTick; tickToProcess++)
-                {
-                    int bufferIndex = tickToProcess % BUFFER_SIZE;
-                    
-                    // Process new movement with reconciled state
-                    StatePayload statePayload = ProcessMovement(inputBuffer[bufferIndex]);
-                    Debug.Log("Reconciliation done");
-                    
-                    // Update buffer with recalculated state
-                    stateBuffer[bufferIndex] = statePayload;
-                }
-
-                // Reset the flag to indicate that we've finished reconciling
-                isReconciling = false;
-            }
-        }
+        if(!isReconciling)
+            latestServerState = state;
     }
     private void UpdateInputs()
     {

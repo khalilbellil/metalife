@@ -290,12 +290,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 6168599849233156887}
   cameraTransform: {fileID: 5535347378174684004}
+  player: {fileID: 0}
   speed: 5
   jumpHeight: 1
   gravity: -9.81
   sensitivity: 100
   clampAngle: 85
-  isReconciling: 0
 --- !u!114 &4559814115611967028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,7 +317,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7673061599552897066}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b47d9e361ea6da8498b69c6ebb025327, type: 3}
   m_Name: 

@@ -8,6 +8,7 @@ public class GameFlow : Flow
         InputManager.Instance.Initialize();
         UIManager.Instance.Initialize();
         PlayerManager.Instance.Initialize();
+        DoorManager.Instance.Initialize();
     }
 
     public override void Update(float dt)
@@ -26,8 +27,8 @@ public class GameFlow : Flow
 
     public override void EndFlow()
     {
-        InputManager.Instance.StopManager();
         PlayerManager.Instance.StopManager();
+        DoorManager.Instance.StopManager();
         base.EndFlow();
     }
 }

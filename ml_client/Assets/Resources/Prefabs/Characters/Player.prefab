@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 1049917558264218716}
   - component: {fileID: 4013454489882656930}
   - component: {fileID: 647391602048284642}
+  - component: {fileID: 6013152096486494386}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -161,9 +162,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b47d9e361ea6da8498b69c6ebb025327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeElapsed: 0
-  timeToReachTarget: 0.05
-  movementThreshold: 0.05
+--- !u!136 &6013152096486494386
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673061599552897066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.27
+  m_Height: 1.55
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.84, z: 0}
 --- !u!1001 &2694782155135966023
 PrefabInstance:
   m_ObjectHideFlags: 0

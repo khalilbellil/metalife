@@ -39,7 +39,6 @@ public class MainEntry : MonoBehaviour
         //THIS IS THE FIRST POINT EVER ENTERED BY THIS PROGRAM. (Except for MainEntryCreator.cs, who creates this script and runs this function for the game to start)
         currentState = cs;
         curFlow = InitializeFlowScript(currentState, true);
-        NetworkManager.Instance.Initialize();
     }
 
     // Start is called before the first frame update
@@ -66,7 +65,7 @@ public class MainEntry : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (flowInitialized && curFlow != null)
+        if (flowInitialized && curFlow != null && NetworkManager.Instance.Client != null)
         {
             NetworkManager.Instance.Client.Update();
             curFlow.FixedUpdate(Time.fixedDeltaTime);
@@ -77,6 +76,11 @@ public class MainEntry : MonoBehaviour
     private void OnApplicationQuit()
     {
         NetworkManager.Instance.StopManager();
+        _singleton = null;
+    }
+
+    public void StopManager(){
+        GameObject.Destroy(gameObject);
         _singleton = null;
     }
 
@@ -162,15 +166,5 @@ public class MainEntry : MonoBehaviour
         currentState = nextState;
         //Initialize the flow script for the scene
         curFlow = InitializeFlowScript(nextState, false);
-    }
-
-    public void RestartGame()
-    {
-        GoToNextFlow(SceneState.Menu);
-    }
-
-    public void ExitGame()
-    {
-        Application.Quit();
     }
 }

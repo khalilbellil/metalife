@@ -3,27 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DoorManager : MonoBehaviour
+public class DoorManager
 {
-    #region Singleton Pattern
-    private static DoorManager _singleton;
+#region Singleton Pattern
+    private static DoorManager instance = null;
+    private DoorManager() { }
     public static DoorManager Instance
     {
-        get => _singleton;
-        set
+        get
         {
-            if (_singleton == null)
-                _singleton = value;
-            else if (_singleton != value)
+            if (instance == null)
             {
-                Debug.Log($"{nameof(DoorManager)} instance already exists, destroying duplicate !");
-                Destroy(value);
+                instance = new DoorManager();
             }
+            return instance;
         }
     }
-    #endregion
+#endregion
 
     public static Dictionary<ushort, Door> list = new Dictionary<ushort, Door>();
+
+    public void Initialize(){
+
+    }
+    public void StopManager(){
+        foreach(KeyValuePair<ushort, Door> kvp in list){
+            GameObject.Destroy(kvp.Value.gameObject);
+        }
+        list.Clear();
+    }
 
     [MessageHandler((ushort)ServerToClientId.doorOpened)]
     private static void DoorOpened(Message message)

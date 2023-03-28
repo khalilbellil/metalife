@@ -67,17 +67,23 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private ushort default_port = 7777;
     [SerializeField] private ushort tickDivergenceTolerance = 1;
 
+#region InitData
     [NonSerialized] public float gravity;
     [NonSerialized] public ushort gravityMultiplier;
     [NonSerialized] public ushort movementSpeed;
     [NonSerialized] public ushort jumpHeight;
+#endregion
 
     private void Awake()
     {
-        Instance = this;
-        DontDestroyOnLoad(Instance);
+        if(Instance == null){
+            Instance = this;
+            DontDestroyOnLoad(Instance);
+        }
     }
-
+    private void Start() {
+        Initialize();
+    }
     public void Initialize()
     {
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
@@ -90,10 +96,11 @@ public class NetworkManager : MonoBehaviour
 
         ServerTick = TicksBetweenPositionUpdates;
     }
-
     public void StopManager()
     {
-        Client.Disconnect();
+        if(Client != null)
+            Client.Disconnect();
+        GameObject.Destroy(gameObject);
         _singleton = null;
     }
 
@@ -106,42 +113,36 @@ public class NetworkManager : MonoBehaviour
 
         Client.Connect($"{ip}:{port}");
     }
-
-    private void DidConnect(object sender, EventArgs e)
-    {
-        MainEntry.Instance.GoToNextFlow(SceneState.Game);
-        //UIManager.Instance.SendName();
-    }
-
     private void FailedToConnect(object sender, EventArgs e)
     {
-        UIManager.Instance.BackToMain();
+        Debug.Log("FailedToConnect " + e);
+        UIManager.Instance.UpdateConnectionStatusText("Connection to host failed !", TextColor.red);
     }
-
+    private void DidConnect(object sender, EventArgs e)
+    {
+        UIManager.Instance.ToggleMenuUI();
+        MainEntry.Instance.GoToNextFlow(SceneState.Game);
+    }
+    private void DidDisconnect(object sender, EventArgs e)
+    {
+        
+    }
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
     {
         if(PlayerManager.Instance.list.TryGetValue(e.Id, out Player player))
             Destroy(player.gameObject);
     }
 
-    private void DidDisconnect(object sender, EventArgs e)
-    {
-        UIManager.Instance.BackToMain();
-        foreach (Player player in PlayerManager.Instance.list.Values)
-            Destroy(player.gameObject);
-
-        MainEntry.Instance.GoToNextFlow(SceneState.Menu);
-    }
-
     private void SetTick(ushort serverTick)
     {
         if (Mathf.Abs(ServerTick - serverTick) > tickDivergenceTolerance)
         {
-            Debug.Log($"Client tick: {ServerTick} -> {serverTick}");
+            Debug.Log($"Client tick correction: {ServerTick} -> {serverTick}");
             ServerTick = serverTick;
         }
     }
 
+#region Messages
     [MessageHandler((ushort)ServerToClientId.sync)]
     public static void Sync(Message message)
     {
@@ -156,4 +157,5 @@ public class NetworkManager : MonoBehaviour
         _singleton.movementSpeed = message.GetUShort();
         _singleton.jumpHeight = message.GetUShort();
     }
+#endregion
 }

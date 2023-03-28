@@ -24,8 +24,10 @@ public class PrefabManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-        DontDestroyOnLoad(Instance);
+        if(Instance == null){
+            Instance = this;
+            DontDestroyOnLoad(Instance);
+        }
     }
 
     [SerializeField] public string PlayerPath = "Prefabs/Characters/Player";

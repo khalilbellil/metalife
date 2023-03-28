@@ -37,6 +37,9 @@ public class PlayerManager
 
     public void StopManager()
     {
+        foreach (Player player in PlayerManager.Instance.list.Values)
+            GameObject.Destroy(player.gameObject);
+        list.Clear();
         instance = null;
     }
 
@@ -58,8 +61,9 @@ public class PlayerManager
         player.name = $"Player {id} ({(string.IsNullOrEmpty(username) ? "Guest" : username)})";
         player.SetId(id);
         player.SetUsername(username);
-
         list.Add(id, player);
+
+        UIManager.Instance.InitializeGameUI(id, username);
     }
 
     #region Messages
@@ -79,14 +83,11 @@ public class PlayerManager
             serverState.tick = message.GetUShort();
             serverState.position = message.GetVector3();
             serverState.rotation = message.GetVector3();
-            Vector3 forward = message.GetVector3();
             if (playerId == NetworkManager.Instance.Client.Id)
             {
-                player.playerController.latestServerState = serverState;
-            }
-            else
-            {
-                player.Move(serverState.tick, false, serverState.position, forward);
+               player.playerController.ProcessServerState(serverState);
+            }else{
+                player.Move(serverState.tick, false, serverState.position, serverState.rotation);
             }
         }
     }

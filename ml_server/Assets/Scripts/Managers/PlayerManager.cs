@@ -79,4 +79,20 @@ public class PlayerManager
     {
         Instance.Spawn(fromClientId, message.GetString());
     }
+
+    [MessageHandler((ushort)ClientToServerId.input)]
+    private static void Input(ushort fromClientId, Message message)
+    {
+        if (PlayerManager.Instance.list.TryGetValue(fromClientId, out Player player))
+        {
+            InputPayload clientInputPayload = new InputPayload();
+            clientInputPayload.tick = message.GetUShort();
+            clientInputPayload.inputDirection = message.GetVector2();
+            clientInputPayload.mouseHorizontal = message.GetFloat();
+            clientInputPayload.mouseVertical = message.GetFloat();
+            clientInputPayload.jump = message.GetBool();
+            clientInputPayload.sprint = message.GetBool();
+            player.Movement.inputQueue.Enqueue(clientInputPayload);
+        }
+    }
 }

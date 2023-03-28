@@ -21,6 +21,10 @@ public class PlayerAnimationManager : MonoBehaviour
         sprintThreshold = playerMoveSpeed * 1.5f * Time.fixedDeltaTime;
     }
 
+    private void FixedUpdate() {
+        AnimateBasedOnSpeed();
+    }
+
     public void AnimateBasedOnSpeed()
     {
         lastPosition.y = transform.position.y;

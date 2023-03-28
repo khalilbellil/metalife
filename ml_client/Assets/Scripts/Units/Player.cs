@@ -20,13 +20,13 @@ public class Player : MonoBehaviour
         if (animationManager == null)
             animationManager = GetComponent<PlayerAnimationManager>();
 
-        if (playerController == null)
+        if (playerController == null){}
             playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
     {
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
     }
 
     private void OnDestroy()
@@ -34,14 +34,10 @@ public class Player : MonoBehaviour
         PlayerManager.Instance.list.Remove(Id);
     }
 
-    public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 forward)
+    public void Move(ushort tick, bool isTeleport, Vector3 newPosition, Vector3 newRotation)
     {
-        interpolator.NewUpdate(tick, isTeleport, newPosition);
-
-        if (!IsLocal)
-            camTransform.forward = forward;
-
-        animationManager.AnimateBasedOnSpeed();
+        //interpolator.NewUpdate(tick, isTeleport, newPosition, newRotation);
+        interpolator.AddTransformUpdate(new TransformUpdate(tick, isTeleport, newPosition, newRotation));
     }
 
     #region Getter/Setter

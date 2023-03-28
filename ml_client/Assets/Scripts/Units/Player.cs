@@ -27,7 +27,6 @@ public class Player : MonoBehaviour
     private void Start()
     {
         //DontDestroyOnLoad(gameObject);
-        playerController.player = this;
     }
 
     private void OnDestroy()

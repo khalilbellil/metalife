@@ -100,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
     }
     StatePayload ProcessMovement(InputPayload input)
     {
-        float deltaTime = Time.fixedDeltaTime;
+        float fixedDeltaTime = Time.fixedDeltaTime;
         Transform cameraTransform = camProxy;
         // Should always be in sync with same function on Client
 
@@ -108,8 +108,8 @@ public class PlayerMovement : MonoBehaviour
         float moveVertical = input.inputDirection.y; // get vertical movement input
 
         // Rotate camera and player in the direction of movement
-        verticalRotation += input.mouseVertical * sensitivity * deltaTime;
-        horizontalRotation += input.mouseHorizontal * sensitivity * deltaTime;
+        verticalRotation += input.mouseVertical * sensitivity * fixedDeltaTime;
+        horizontalRotation += input.mouseHorizontal * sensitivity * fixedDeltaTime;
         verticalRotation = Mathf.Clamp(verticalRotation, -clampAngle, clampAngle);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
         transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
@@ -118,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movement = (transform.forward * moveVertical + transform.right * moveHorizontal).normalized;
 
         // Apply gravity to velocity
-        velocity.y += gravity * deltaTime;
+        velocity.y += gravity * fixedDeltaTime;
 
         // Apply jump if player is on the ground
         if (controller.isGrounded && input.jump)
@@ -127,7 +127,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Apply movement to the CharacterController component
-        controller.Move((movement * speed + velocity) * deltaTime);
+        controller.Move((movement * speed + velocity) * fixedDeltaTime);
+        Physics.Simulate(fixedDeltaTime);
 
         // Reset velocity if player is on the ground
         if (controller.isGrounded && velocity.y < 0)

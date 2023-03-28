@@ -62,7 +62,7 @@ public class NetworkManager : MonoBehaviour
 #if UNITY_EDITOR
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 #else
-        System.Console.Title = "MetaLife Server 0.1";
+        System.Console.Title = "MetaLife Server 0.0.2.2.2";
         System.Console.Clear();
         Application.SetStackTraceLogType(UnityEngine.LogType.Log, StackTraceLogType.None);
         RiptideLogger.Initialize(Debug.Log, true);

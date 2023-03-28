@@ -35,7 +35,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private InputField usernameField;
     [SerializeField] private InputField IpAddressField;
     [SerializeField] public TMP_Text centerText;
+    [SerializeField] public TMP_Text pingText;
     [SerializeField] private TMP_Text usernameText;
+    [SerializeField] private TMP_Text PositionText;
+    [SerializeField] private TMP_Text RotationText;
+    [SerializeField] private TMP_Text TickText;
     [SerializeField] private GameObject escapeMenu;
     [SerializeField] private Toggle displayPositionToggle;
     [SerializeField] private Toggle displayRotationToggle;
@@ -65,7 +69,8 @@ public class UIManager : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.BackQuote)){
                 ToggleCursorMode();
-            } 
+            }
+            UpdatePingText();
         }
     }
     public void FixedUpdateManager(float dt)
@@ -105,6 +110,7 @@ public class UIManager : MonoBehaviour
         isInGame = true;
         usernameText.SetText(string.IsNullOrEmpty(username) ? "Guest" : username + " (" + id.ToString() + ")");
         usernameText.gameObject.SetActive(true);
+        pingText.gameObject.SetActive(true);
     }
     private void ToggleCursorMode()
     {
@@ -144,6 +150,42 @@ public class UIManager : MonoBehaviour
             connectionStatusText.color = c;
             go.SetActive(true);
         }
+    }
+    public void TogglePositionText(){
+        PositionText.gameObject.SetActive(!PositionText.gameObject.activeSelf);
+    }
+    public void ToggleRotationText(){
+        RotationText.gameObject.SetActive(!RotationText.gameObject.activeSelf);
+    }
+    public void SetPositionText(string position){
+        PositionText.SetText("Pos: " + position);
+    }
+    public void SetRotationText(string rotation){
+        RotationText.SetText("Y Euler Angle: " + rotation);
+    }
+    public bool PositionTextIsOn(){
+        return PositionText.gameObject.activeSelf;
+    }
+    public bool RotationTextIsOn(){
+        return RotationText.gameObject.activeSelf;
+    }
+    public void ToggleTickText(){
+        TickText.gameObject.SetActive(!TickText.gameObject.activeSelf);
+    }
+    public void SetTickText(string text){
+        TickText.SetText("Tick: " + text);
+    }
+    public bool TickStatusIsOn(){
+        return TickText.gameObject.activeSelf;
+    }
+    private void UpdatePingText(){
+        int ping = Mathf.RoundToInt(NetworkManager.Instance.Client.RTT);
+        if(ping > 99){
+            pingText.color = Color.red;
+        }else{
+            pingText.color = Color.green;
+        }
+        pingText.SetText(ping + "ms");
     }
 
     #region Messages

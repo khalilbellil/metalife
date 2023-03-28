@@ -33,9 +33,6 @@ public class PlayerController : MonoBehaviour
     private float gravityAcceleration;
     private float moveSpeed;
     private float jumpSpeed;
-    private bool didTeleport;
-    private bool sprintedBeforeJump = false;
-    private bool walkingBeforeJump = false;
     private Vector3 velocity;
     [SerializeField] private float sensitivity = 100f;
     [SerializeField] private float clampAngle = 85f;
@@ -50,8 +47,8 @@ public class PlayerController : MonoBehaviour
     private StatePayload latestServerState;
     private StatePayload lastProcessedState;
     private bool isReconciling = false;
-    private const float POSITION_THRESHOLD = 0.001f;
-    private const float ROTATION_THRESHOLD = 5f; // Angle in degres
+    private const float POSITION_THRESHOLD = 0.1f;
+    private const float ROTATION_THRESHOLD = 1f; // Angle in degres
 #endregion
 
     private void Initialize()
@@ -117,6 +114,17 @@ public class PlayerController : MonoBehaviour
 
             // Send input to server
             SendInput(inputPayload);
+
+            //Update Debug UI
+            if(UIManager.Instance.PositionTextIsOn()){
+                UIManager.Instance.SetPositionText(transform.position.ToString());
+            }
+            if(UIManager.Instance.RotationTextIsOn()){
+                UIManager.Instance.SetRotationText(Mathf.RoundToInt(transform.rotation.eulerAngles.y).ToString());
+            }
+            if(UIManager.Instance.TickStatusIsOn()){
+                UIManager.Instance.SetTickText(currentTick.ToString());
+            }
         }
     }
     void HandleServerReconciliation()
@@ -127,9 +135,9 @@ public class PlayerController : MonoBehaviour
         float positionError = Vector3.Distance(latestServerState.position, stateBuffer[serverStateBufferIndex].position);
         float rotationError = Quaternion.Angle(Quaternion.Euler(latestServerState.rotation), Quaternion.Euler(stateBuffer[serverStateBufferIndex].rotation));
 
-        if (positionError > 0.001f || rotationError > 0.001f)
+        if (positionError > POSITION_THRESHOLD || rotationError > ROTATION_THRESHOLD)
         {
-            Debug.Log("We have to reconcile bro");
+            Debug.Log("We have to reconcile");
 
             // Save the current transform state
             Vector3 currentPosition = transform.position;
@@ -176,15 +184,15 @@ public class PlayerController : MonoBehaviour
     }
     StatePayload ProcessMovement(InputPayload input)
     {
-        float deltaTime = Time.fixedDeltaTime;
+        float fixedDeltaTime = Time.fixedDeltaTime;
         // Should always be in sync with same function on Server
 
         float moveHorizontal = input.inputDirection.x; // get horizontal movement input
         float moveVertical = input.inputDirection.y; // get vertical movement input
 
         // Rotate camera and player in the direction of movement
-        verticalRotation += input.mouseVertical * sensitivity * deltaTime;
-        horizontalRotation += input.mouseHorizontal * sensitivity * deltaTime;
+        verticalRotation += input.mouseVertical * sensitivity * fixedDeltaTime;
+        horizontalRotation += input.mouseHorizontal * sensitivity * fixedDeltaTime;
         verticalRotation = Mathf.Clamp(verticalRotation, -clampAngle, clampAngle);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
         transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
@@ -193,7 +201,7 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = (transform.forward * moveVertical + transform.right * moveHorizontal).normalized;
 
         // Apply gravity to velocity
-        velocity.y += gravity * deltaTime;
+        velocity.y += gravity * fixedDeltaTime;
 
         // Apply jump if player is on the ground
         if (controller.isGrounded && input.jump)
@@ -202,7 +210,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Apply movement to the CharacterController component
-        controller.Move((movement * speed + velocity) * deltaTime);
+        controller.Move((movement * speed + velocity) * fixedDeltaTime);
+        Physics.Simulate(fixedDeltaTime);
         
         // Reset velocity if player is on the ground
         if (controller.isGrounded && velocity.y < 0)

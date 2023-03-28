@@ -7,9 +7,7 @@ public class Interpolator : MonoBehaviour
     private TransformUpdate to;
     private TransformUpdate from;
     private TransformUpdate previous;
-
-    private float timeElapsed = 0f;
-    private float timeToReachTarget = 0.1f;
+    private float timeToReachTarget = 0.2f;
 
     private Queue<TransformUpdate> futureTransformUpdates = new Queue<TransformUpdate>();
 
@@ -51,8 +49,7 @@ public class Interpolator : MonoBehaviour
                 from = new TransformUpdate(NetworkManager.Instance.InterpolationTick, false,
                     transform.position, transform.rotation.eulerAngles);
 
-                timeElapsed = 0f;
-                timeToReachTarget = Mathf.Max((to.Tick - from.Tick) * Time.fixedDeltaTime, 0.1f);
+                timeToReachTarget = Mathf.Max((to.Tick - from.Tick) * Time.fixedDeltaTime, 0.2f);
 
                 // Start the coroutine to interpolate the position and rotation
                 StartCoroutine(InterpolateCoroutine());
@@ -70,11 +67,11 @@ public class Interpolator : MonoBehaviour
             InterpolatePosition(elapsed / timeToReachTarget);
             InterpolateRotation(elapsed / timeToReachTarget);
 
-            // Wait for the next frame
-            yield return null;
+            // Wait for the next fixed frame
+            yield return new WaitForFixedUpdate();
 
             // Update the elapsed time
-            elapsed += Time.deltaTime;
+            elapsed += Time.fixedDeltaTime;
         }
 
         // Set the final position and rotation to the target values

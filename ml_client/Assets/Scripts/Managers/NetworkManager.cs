@@ -115,6 +115,7 @@ public class NetworkManager : MonoBehaviour
     }
     private void FailedToConnect(object sender, EventArgs e)
     {
+        Debug.Log("FailedToConnect " + e);
         UIManager.Instance.UpdateConnectionStatusText("Connection to host failed !", TextColor.red);
     }
     private void DidConnect(object sender, EventArgs e)
